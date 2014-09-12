@@ -87,6 +87,11 @@ namespace BetterSerialMonitor
 
             historyClearButton.Enabled = false;
 
+            sendingDataButton.Enabled = false;
+            sendingTextButton.Enabled = false;
+            clearSendBox.Enabled = false;
+            sendNewline.Enabled = false;
+
 #if DEBUG
             /* FOR TESTING */
             rxDataBox.Text = "This is a test";
@@ -198,6 +203,10 @@ namespace BetterSerialMonitor
                 dataBitsList.Enabled = false;
                 txDataBox.Enabled = true;
                 historyClearButton.Enabled = true;
+                sendingDataButton.Enabled = true;
+                sendingTextButton.Enabled = true;
+                clearSendBox.Enabled = true;
+                sendNewline.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -231,9 +240,13 @@ namespace BetterSerialMonitor
             eolCharsBox.Enabled = true;
             dataBitsList.Enabled = true;
             //icsCommands.Enabled = false;
-            txDataBox.Text = string.Empty;
+            //txDataBox.Text = string.Empty;
             txDataBox.Enabled = false;
             historyClearButton.Enabled = false;
+            sendingDataButton.Enabled = false;
+            sendingTextButton.Enabled = false;
+            clearSendBox.Enabled = false;
+            sendNewline.Enabled = false;
         }
 
         private void sendButton_Click(object sender, EventArgs e)
