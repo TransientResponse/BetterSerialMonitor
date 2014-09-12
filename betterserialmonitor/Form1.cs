@@ -15,6 +15,7 @@ namespace BetterSerialMonitor
         public Form1()
         {
             InitializeComponent();
+            port.Encoding = Encoding.ASCII;
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
@@ -710,6 +711,11 @@ namespace BetterSerialMonitor
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void stopSelection(object sender, MouseEventArgs e)
+        {
+            txDataBox.SelectionStart = txDataBox.Text.Length;
         }
     }
 }

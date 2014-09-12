@@ -48,7 +48,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.baudRateSetting = new System.Windows.Forms.ComboBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.txControls = new System.Windows.Forms.GroupBox();
             this.historyClearButton = new System.Windows.Forms.Button();
             this.txDataBox = new System.Windows.Forms.ComboBox();
             this.clearSendBox = new System.Windows.Forms.CheckBox();
@@ -56,7 +56,7 @@
             this.sendingDataButton = new System.Windows.Forms.RadioButton();
             this.sendingTextButton = new System.Windows.Forms.RadioButton();
             this.sendNewline = new System.Windows.Forms.CheckBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.rxControls = new System.Windows.Forms.GroupBox();
             this.autoscrollBox = new System.Windows.Forms.CheckBox();
             this.pauseBox = new System.Windows.Forms.CheckBox();
             this.showBothButton = new System.Windows.Forms.RadioButton();
@@ -66,8 +66,8 @@
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
             this.portSettings.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.txControls.SuspendLayout();
+            this.rxControls.SuspendLayout();
             this.SuspendLayout();
             // 
             // port
@@ -180,6 +180,7 @@
             // 
             // portNameBox
             // 
+            this.portNameBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.portNameBox.Font = new System.Drawing.Font("Courier New", 9F);
             this.portNameBox.FormattingEnabled = true;
             this.portNameBox.Location = new System.Drawing.Point(10, 41);
@@ -254,23 +255,23 @@
             this.baudRateSetting.Size = new System.Drawing.Size(121, 21);
             this.baudRateSetting.TabIndex = 0;
             // 
-            // groupBox1
+            // txControls
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txControls.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.historyClearButton);
-            this.groupBox1.Controls.Add(this.txDataBox);
-            this.groupBox1.Controls.Add(this.clearSendBox);
-            this.groupBox1.Controls.Add(this.sendButton);
-            this.groupBox1.Controls.Add(this.sendingDataButton);
-            this.groupBox1.Controls.Add(this.sendingTextButton);
-            this.groupBox1.Controls.Add(this.sendNewline);
-            this.groupBox1.Location = new System.Drawing.Point(12, 155);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(610, 73);
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Data to Send";
+            this.txControls.Controls.Add(this.historyClearButton);
+            this.txControls.Controls.Add(this.txDataBox);
+            this.txControls.Controls.Add(this.clearSendBox);
+            this.txControls.Controls.Add(this.sendButton);
+            this.txControls.Controls.Add(this.sendingDataButton);
+            this.txControls.Controls.Add(this.sendingTextButton);
+            this.txControls.Controls.Add(this.sendNewline);
+            this.txControls.Location = new System.Drawing.Point(12, 155);
+            this.txControls.Name = "txControls";
+            this.txControls.Size = new System.Drawing.Size(610, 73);
+            this.txControls.TabIndex = 1;
+            this.txControls.TabStop = false;
+            this.txControls.Text = "Data to Send";
             // 
             // historyClearButton
             // 
@@ -294,6 +295,7 @@
             this.txDataBox.Size = new System.Drawing.Size(392, 24);
             this.txDataBox.TabIndex = 6;
             this.txDataBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.sendOnEnter);
+            this.txDataBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.stopSelection);
             // 
             // clearSendBox
             // 
@@ -326,6 +328,8 @@
             this.sendingDataButton.TabIndex = 3;
             this.sendingDataButton.TabStop = true;
             this.sendingDataButton.Text = "Raw data";
+            this.sendDataTT.SetToolTip(this.sendingDataButton, "Enter a series of bytes in decimal or hex, separated by spaces, commas, \r\nperiods" +
+        ", or semicolons. No prefixes are necessary. ");
             this.sendingDataButton.UseVisualStyleBackColor = true;
             this.sendingDataButton.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
             // 
@@ -338,6 +342,8 @@
             this.sendingTextButton.TabIndex = 2;
             this.sendingTextButton.TabStop = true;
             this.sendingTextButton.Text = "Text";
+            this.sendDataTT.SetToolTip(this.sendingTextButton, "Prefix hex bytes with 0x, %, or &. \r\nTo send more than one byte, use more than on" +
+        "e prefix.");
             this.sendingTextButton.UseVisualStyleBackColor = true;
             // 
             // sendNewline
@@ -351,24 +357,24 @@
             this.sendNewline.Text = "Send newline";
             this.sendNewline.UseVisualStyleBackColor = true;
             // 
-            // groupBox2
+            // rxControls
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.rxControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.autoscrollBox);
-            this.groupBox2.Controls.Add(this.pauseBox);
-            this.groupBox2.Controls.Add(this.showBothButton);
-            this.groupBox2.Controls.Add(this.clearButton);
-            this.groupBox2.Controls.Add(this.showHexButton);
-            this.groupBox2.Controls.Add(this.showTextButton);
-            this.groupBox2.Controls.Add(this.rxDataBox);
-            this.groupBox2.Location = new System.Drawing.Point(12, 234);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(610, 279);
-            this.groupBox2.TabIndex = 2;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Data Received";
+            this.rxControls.Controls.Add(this.autoscrollBox);
+            this.rxControls.Controls.Add(this.pauseBox);
+            this.rxControls.Controls.Add(this.showBothButton);
+            this.rxControls.Controls.Add(this.clearButton);
+            this.rxControls.Controls.Add(this.showHexButton);
+            this.rxControls.Controls.Add(this.showTextButton);
+            this.rxControls.Controls.Add(this.rxDataBox);
+            this.rxControls.Location = new System.Drawing.Point(12, 234);
+            this.rxControls.Name = "rxControls";
+            this.rxControls.Size = new System.Drawing.Size(610, 279);
+            this.rxControls.TabIndex = 2;
+            this.rxControls.TabStop = false;
+            this.rxControls.Text = "Data Received";
             // 
             // autoscrollBox
             // 
@@ -457,8 +463,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(642, 525);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.rxControls);
+            this.Controls.Add(this.txControls);
             this.Controls.Add(this.portSettings);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
@@ -467,10 +473,10 @@
             this.Load += new System.EventHandler(this.portSetup);
             this.portSettings.ResumeLayout(false);
             this.portSettings.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.txControls.ResumeLayout(false);
+            this.txControls.PerformLayout();
+            this.rxControls.ResumeLayout(false);
+            this.rxControls.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -484,12 +490,12 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox txControls;
         private System.Windows.Forms.RadioButton sendingDataButton;
         private System.Windows.Forms.RadioButton sendingTextButton;
         private System.Windows.Forms.CheckBox sendNewline;
         private System.Windows.Forms.Button sendButton;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox rxControls;
         private System.Windows.Forms.Button clearButton;
         private System.Windows.Forms.RadioButton showHexButton;
         private System.Windows.Forms.RadioButton showTextButton;
