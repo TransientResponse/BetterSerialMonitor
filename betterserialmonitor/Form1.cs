@@ -43,8 +43,12 @@ namespace BetterSerialMonitor
 
         private string matchByteToString(Match m)
         {
-            byte b = byte.Parse(m.Groups[2].Value, System.Globalization.NumberStyles.HexNumber);
-            string equiv = Encoding.ASCII.GetString(new byte[] { b });
+            byte[] parts = new byte[m.Groups[1].Value.Length / 2];
+            for (int i = 0; i < parts.Length; i++)
+            {
+                parts[i] = byte.Parse(m.Groups[2].Value, System.Globalization.NumberStyles.HexNumber); 
+            }
+            string equiv = Encoding.ASCII.GetString(parts);
             return equiv;
         }
 
@@ -503,6 +507,14 @@ namespace BetterSerialMonitor
         {
             if (e.KeyCode == Keys.Enter)
             {
+                if (selectedIndex >= 0)
+                    selectedIndex = -1;
+
+                if (!clearSendBox.Checked)
+                    cursorPosition = txDataBox.SelectionStart;
+                else
+                    cursorPosition = 0;
+                
                 try
                 {
                     sendData();
@@ -512,13 +524,7 @@ namespace BetterSerialMonitor
                     MessageBox.Show(String.Format("ERROR: {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                if (selectedIndex >= 0)
-                    selectedIndex = -1;
-
-                if (!clearSendBox.Checked)
-                    cursorPosition = txDataBox.SelectionStart;
-                else
-                    cursorPosition = 0;
+                
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
@@ -558,7 +564,7 @@ namespace BetterSerialMonitor
 
             try
             {
-                toSend = Regex.Replace(toSend, "(%|0x|&)([0-9a-fA-F]{1,2})", matchByteToString);
+                toSend = Regex.Replace(toSend, "(?:%|&|0x)(([0-9a-fA-F]{1,2})+)", matchByteToString);
             }
             catch(Exception e)
             {
@@ -764,7 +770,7 @@ namespace BetterSerialMonitor
 
         private void clearTxBtn_Click(object sender, EventArgs e)
         {
-            SetRxText("");
+            txDataBox.Text = "";
         }
     }
 }
