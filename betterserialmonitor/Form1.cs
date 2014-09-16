@@ -35,6 +35,9 @@ namespace BetterSerialMonitor
         private string StoredRxText; //Keep this around
         private StringBuilder pauseBuffer = null;
         private int scrollPosition = 0;
+        private int cursorPosition = 0;
+        private int selectedIndex = 0;
+        private List<string> storedHistory = new List<string>();
 
         const uint MAX_HISTORY = 256;
 
@@ -91,10 +94,11 @@ namespace BetterSerialMonitor
             sendingTextButton.Enabled = false;
             clearSendBox.Enabled = false;
             sendNewline.Enabled = false;
+            clearTxBtn.Enabled = false;
 
 #if DEBUG
             /* FOR TESTING */
-            rxDataBox.Text = "This is a test";
+            rxDataBox.Text = "THIS IS A TEST BUILD";
 #endif
         }
 
@@ -207,6 +211,7 @@ namespace BetterSerialMonitor
                 sendingTextButton.Enabled = true;
                 clearSendBox.Enabled = true;
                 sendNewline.Enabled = true;
+                clearTxBtn.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -247,6 +252,7 @@ namespace BetterSerialMonitor
             sendingTextButton.Enabled = false;
             clearSendBox.Enabled = false;
             sendNewline.Enabled = false;
+            clearTxBtn.Enabled = false;
         }
 
         private void sendButton_Click(object sender, EventArgs e)
@@ -395,7 +401,7 @@ namespace BetterSerialMonitor
             }
 
             if (autoscrollBox.Checked)
-                AutoScroll();
+                AutoScrollerator();
             else
                 ScrollTo(scrollPosition);
         }
@@ -419,11 +425,11 @@ namespace BetterSerialMonitor
                 this.rxDataBox.Text = txt;
         }
 
-        private void AutoScroll()
+        private void AutoScrollerator()
         {
             if(this.rxDataBox.InvokeRequired)
             {
-                AutoScroller asr = new AutoScroller(AutoScroll);
+                AutoScroller asr = new AutoScroller(AutoScrollerator);
                 this.Invoke(asr);
             }
             else
@@ -467,7 +473,7 @@ namespace BetterSerialMonitor
             }
             else
             {
-                txDataBox.Items.Clear();
+                storedHistory.Clear();
             }
         }
 
@@ -480,9 +486,9 @@ namespace BetterSerialMonitor
             }
             else
             {
-                txDataBox.Items.Insert(0, (object)line);
-                if (txDataBox.Items.Count > MAX_HISTORY)
-                    txDataBox.Items.RemoveAt((int)MAX_HISTORY - 1);
+                storedHistory.Insert(0, line);
+                if (storedHistory.Count > MAX_HISTORY)
+                    storedHistory.RemoveAt((int)MAX_HISTORY - 1);
             }
         }
         #endregion
@@ -506,25 +512,35 @@ namespace BetterSerialMonitor
                     MessageBox.Show(String.Format("ERROR: {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                if (txDataBox.SelectedIndex >= 0)
-                    txDataBox.SelectedIndex = -1;
+                if (selectedIndex >= 0)
+                    selectedIndex = -1;
 
+                if (!clearSendBox.Checked)
+                    cursorPosition = txDataBox.SelectionStart;
+                else
+                    cursorPosition = 0;
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
-            else if(e.KeyCode == Keys.Up)
+            else if(e.KeyCode == Keys.Up && clearSendBox.Checked)
             {
-                if(txDataBox.SelectedIndex < txDataBox.Items.Count-1)
-                    txDataBox.SelectedIndex++;
-                txDataBox.SelectionStart = txDataBox.Text.Length;
+                if (selectedIndex < storedHistory.Count-1)
+                {
+                    selectedIndex++;
+                    txDataBox.SelectionStart = txDataBox.Text.Length;
+                    txDataBox.Text = storedHistory[selectedIndex]; 
+                }
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
             else if(e.KeyCode == Keys.Down)
             {
-                if (txDataBox.SelectedIndex > 0)
-                    txDataBox.SelectedIndex--;
-                txDataBox.SelectionStart = txDataBox.Text.Length;
+                if (selectedIndex > 0)
+                {
+                    selectedIndex--;
+                    txDataBox.SelectionStart = txDataBox.Text.Length;
+                    txDataBox.Text = storedHistory[selectedIndex]; 
+                }
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
@@ -726,9 +742,29 @@ namespace BetterSerialMonitor
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void stopSelection(object sender, MouseEventArgs e)
+        private void stopSelection(object sender, EventArgs e)
         {
-            txDataBox.SelectionStart = txDataBox.Text.Length;
+
+        }
+
+        private void txDataBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            if(cursorPosition != 0)
+            {
+                txDataBox.SelectionLength = 0;
+                txDataBox.SelectionStart = cursorPosition;
+                cursorPosition = 0;
+            }
+            else
+            {
+                txDataBox.SelectionLength = 0;
+                txDataBox.SelectionStart = txDataBox.Text.Length;
+            }
+        }
+
+        private void clearTxBtn_Click(object sender, EventArgs e)
+        {
+            SetRxText("");
         }
     }
 }

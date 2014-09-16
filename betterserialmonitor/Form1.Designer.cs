@@ -50,7 +50,6 @@
             this.baudRateSetting = new System.Windows.Forms.ComboBox();
             this.txControls = new System.Windows.Forms.GroupBox();
             this.historyClearButton = new System.Windows.Forms.Button();
-            this.txDataBox = new System.Windows.Forms.ComboBox();
             this.clearSendBox = new System.Windows.Forms.CheckBox();
             this.sendButton = new System.Windows.Forms.Button();
             this.sendingDataButton = new System.Windows.Forms.RadioButton();
@@ -65,6 +64,8 @@
             this.showTextButton = new System.Windows.Forms.RadioButton();
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
+            this.txDataBox = new System.Windows.Forms.TextBox();
+            this.clearTxBtn = new System.Windows.Forms.Button();
             this.portSettings.SuspendLayout();
             this.txControls.SuspendLayout();
             this.rxControls.SuspendLayout();
@@ -241,6 +242,7 @@
             // 
             // baudRateSetting
             // 
+            this.baudRateSetting.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.baudRateSetting.FormattingEnabled = true;
             this.baudRateSetting.Items.AddRange(new object[] {
             "4800",
@@ -252,15 +254,17 @@
             "115600"});
             this.baudRateSetting.Location = new System.Drawing.Point(138, 41);
             this.baudRateSetting.Name = "baudRateSetting";
-            this.baudRateSetting.Size = new System.Drawing.Size(121, 21);
+            this.baudRateSetting.Size = new System.Drawing.Size(121, 23);
             this.baudRateSetting.TabIndex = 0;
+            this.baudRateSetting.KeyUp += new System.Windows.Forms.KeyEventHandler(this.openOnEnter);
             // 
             // txControls
             // 
             this.txControls.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txControls.Controls.Add(this.historyClearButton);
+            this.txControls.Controls.Add(this.clearTxBtn);
             this.txControls.Controls.Add(this.txDataBox);
+            this.txControls.Controls.Add(this.historyClearButton);
             this.txControls.Controls.Add(this.clearSendBox);
             this.txControls.Controls.Add(this.sendButton);
             this.txControls.Controls.Add(this.sendingDataButton);
@@ -283,19 +287,6 @@
             this.historyClearButton.Text = "Clear history";
             this.historyClearButton.UseVisualStyleBackColor = true;
             this.historyClearButton.Click += new System.EventHandler(this.historyClearButton_Click);
-            // 
-            // txDataBox
-            // 
-            this.txDataBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txDataBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txDataBox.FormattingEnabled = true;
-            this.txDataBox.Location = new System.Drawing.Point(7, 20);
-            this.txDataBox.Name = "txDataBox";
-            this.txDataBox.Size = new System.Drawing.Size(392, 24);
-            this.txDataBox.TabIndex = 6;
-            this.txDataBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.sendOnEnter);
-            this.txDataBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.stopSelection);
             // 
             // clearSendBox
             // 
@@ -458,6 +449,25 @@
             this.rxDataBox.Size = new System.Drawing.Size(594, 233);
             this.rxDataBox.TabIndex = 0;
             // 
+            // txDataBox
+            // 
+            this.txDataBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txDataBox.Location = new System.Drawing.Point(10, 20);
+            this.txDataBox.Name = "txDataBox";
+            this.txDataBox.Size = new System.Drawing.Size(391, 21);
+            this.txDataBox.TabIndex = 8;
+            this.txDataBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.sendOnEnter);
+            // 
+            // clearTxBtn
+            // 
+            this.clearTxBtn.Location = new System.Drawing.Point(448, 44);
+            this.clearTxBtn.Name = "clearTxBtn";
+            this.clearTxBtn.Size = new System.Drawing.Size(75, 23);
+            this.clearTxBtn.TabIndex = 9;
+            this.clearTxBtn.Text = "Clear box";
+            this.clearTxBtn.UseVisualStyleBackColor = true;
+            this.clearTxBtn.Click += new System.EventHandler(this.clearTxBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -514,8 +524,9 @@
         private System.Windows.Forms.ComboBox dataBitsList;
         private System.Windows.Forms.CheckBox pauseBox;
         private System.Windows.Forms.CheckBox autoscrollBox;
-        private System.Windows.Forms.ComboBox txDataBox;
         private System.Windows.Forms.Button historyClearButton;
+        private System.Windows.Forms.TextBox txDataBox;
+        private System.Windows.Forms.Button clearTxBtn;
     }
 }
 
