@@ -30,6 +30,7 @@ namespace BetterSerialMonitor
         private delegate void FixedScroller(int sto);
         private delegate void HistoryInserter(string line);
         private delegate void HistoryClearer();
+        private delegate int ScrollPositionGetter();
         #endregion
 
         private string StoredRxText; //Keep this around
@@ -41,15 +42,16 @@ namespace BetterSerialMonitor
 
         const uint MAX_HISTORY = 256;
 
-        private string matchByteToString(Match m)
+        private byte[] matchByteToString(string str)
         {
-            byte[] parts = new byte[m.Groups[1].Value.Length / 2];
+            byte[] parts = new byte[str.Length / 2];
+            string[] bstrs = str.Partition(2);
             for (int i = 0; i < parts.Length; i++)
             {
-                parts[i] = byte.Parse(m.Groups[2].Value, System.Globalization.NumberStyles.HexNumber); 
+                parts[i] = byte.Parse(bstrs[i], System.Globalization.NumberStyles.HexNumber);
             }
-            string equiv = Encoding.ASCII.GetString(parts);
-            return equiv;
+            //string equiv = Encoding.ASCII.GetString(parts);
+            return parts;
         }
 
         private void portSetup(object sender, EventArgs e)
@@ -137,7 +139,7 @@ namespace BetterSerialMonitor
             port.DataBits = (int)dataBitsList.SelectedItem;
 
             //Set parity bits
-            switch(parityBox.SelectedText)
+            switch (parityBox.SelectedText)
             {
                 case "None":
                     port.Parity = System.IO.Ports.Parity.None;
@@ -160,7 +162,7 @@ namespace BetterSerialMonitor
             }
 
             //Set stop bits
-            switch(stopBitsList.SelectedText)
+            switch (stopBitsList.SelectedText)
             {
                 case "0":
                     port.StopBits = System.IO.Ports.StopBits.None;
@@ -180,7 +182,7 @@ namespace BetterSerialMonitor
             }
 
             //Set EOL
-            switch(eolCharsBox.SelectedText)
+            switch (eolCharsBox.SelectedText)
             {
                 case "CR+LF":
                     port.NewLine = "\r\n"; //Windows (default)
@@ -279,7 +281,7 @@ namespace BetterSerialMonitor
             string[] things = both.Split(new char[] { ' ' });
             StringBuilder buffer = new StringBuilder();
 
-            foreach(string thing in things)
+            foreach (string thing in things)
             {
                 char cap = char.Parse(Regex.Match(thing, @"[0-9A-Z]{2}\[([^\]]+)\]").Groups[1].Value);
                 buffer.Append(cap);
@@ -292,7 +294,7 @@ namespace BetterSerialMonitor
         {
             string[] things = hexForm.Split(new char[] { ' ' });
             StringBuilder buffer = new StringBuilder();
-            foreach(string thing in things)
+            foreach (string thing in things)
             {
                 buffer.Append((char)byte.Parse(thing, System.Globalization.NumberStyles.HexNumber));
             }
@@ -301,28 +303,28 @@ namespace BetterSerialMonitor
         }
 
         private void switchView(object sender, EventArgs e)
-		{
-			if (rxDataBox.Text.Length > 0)//Only change if there's text
-			{
-				if (showHexButton.Checked)
-				{ //Now on show hex mode
+        {
+            if (rxDataBox.Text.Length > 0)//Only change if there's text
+            {
+                if (showHexButton.Checked)
+                { //Now on show hex mode
                     //StoredRxText = rxDataBox.Text; //Store last text
-					StringBuilder buffer = new StringBuilder();
+                    StringBuilder buffer = new StringBuilder();
 
                     buffer.Append(convertToHex(StoredRxText));
 
-					SetRxText(buffer.ToString());
-				}
-                else if(showBothButton.Checked)
+                    SetRxText(buffer.ToString());
+                }
+                else if (showBothButton.Checked)
                 {
                     SetRxText(convertToBoth(StoredRxText));
                 }
-				else //Now on show text mode
-				{
+                else //Now on show text mode
+                {
                     //Reload last text
                     SetRxText(StoredRxText);
-				}
-			}
+                }
+            }
         }
 
         private void finalCleanup(object sender, FormClosingEventArgs e)
@@ -376,7 +378,7 @@ namespace BetterSerialMonitor
             StoredRxText += newData;
 
 
-            
+
 
             //Simple if in text mode.
             if (showTextButton.Checked)
@@ -401,7 +403,7 @@ namespace BetterSerialMonitor
             else
             {
                 //Replace text in box with the buffer contents
-                SetRxText(buffer.ToString()); 
+                SetRxText(buffer.ToString());
             }
 
             if (autoscrollBox.Checked)
@@ -410,12 +412,12 @@ namespace BetterSerialMonitor
                 ScrollTo(scrollPosition);
         }
 
-        #if __MonoCS__
+#if __MonoCS__
         private void manualRefresh(object sender, System.EventArgs e)
         {
             updateRxBox();
         }
-        #endif
+#endif
 
         #region Delegate implementations
         private void SetRxText(string txt)
@@ -431,7 +433,7 @@ namespace BetterSerialMonitor
 
         private void AutoScrollerator()
         {
-            if(this.rxDataBox.InvokeRequired)
+            if (this.rxDataBox.InvokeRequired)
             {
                 AutoScroller asr = new AutoScroller(AutoScrollerator);
                 this.Invoke(asr);
@@ -470,7 +472,7 @@ namespace BetterSerialMonitor
 
         private void ClearHistory()
         {
-            if(this.txDataBox.InvokeRequired)
+            if (this.txDataBox.InvokeRequired)
             {
                 HistoryClearer hc = new HistoryClearer(ClearHistory);
                 this.Invoke(hc);
@@ -483,16 +485,29 @@ namespace BetterSerialMonitor
 
         private void AddToHistory(string line)
         {
-            if(this.txDataBox.InvokeRequired)
+            if (this.txDataBox.InvokeRequired)
             {
                 HistoryInserter hi = new HistoryInserter(AddToHistory);
-                this.Invoke(hi, new object[]{line});
+                this.Invoke(hi, new object[] { line });
             }
             else
             {
                 storedHistory.Insert(0, line);
                 if (storedHistory.Count > MAX_HISTORY)
                     storedHistory.RemoveAt((int)MAX_HISTORY - 1);
+            }
+        }
+
+        private int GetScrollPosition()
+        {
+            if (this.txDataBox.InvokeRequired)
+            {
+                ScrollPositionGetter spg = new ScrollPositionGetter(GetScrollPosition);
+                return (int)this.Invoke(spg);
+            }
+            else
+            {
+                return txDataBox.SelectionStart;
             }
         }
         #endregion
@@ -511,10 +526,10 @@ namespace BetterSerialMonitor
                     selectedIndex = -1;
 
                 if (!clearSendBox.Checked)
-                    cursorPosition = txDataBox.SelectionStart;
+                    cursorPosition = GetScrollPosition();
                 else
                     cursorPosition = 0;
-                
+
                 try
                 {
                     sendData();
@@ -524,28 +539,28 @@ namespace BetterSerialMonitor
                     MessageBox.Show(String.Format("ERROR: {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                
+
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
-            else if(e.KeyCode == Keys.Up && clearSendBox.Checked)
+            else if (e.KeyCode == Keys.Up && clearSendBox.Checked)
             {
-                if (selectedIndex < storedHistory.Count-1)
+                if (selectedIndex < storedHistory.Count - 1)
                 {
                     selectedIndex++;
                     txDataBox.SelectionStart = txDataBox.Text.Length;
-                    txDataBox.Text = storedHistory[selectedIndex]; 
+                    txDataBox.Text = storedHistory[selectedIndex];
                 }
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
-            else if(e.KeyCode == Keys.Down)
+            else if (e.KeyCode == Keys.Down)
             {
                 if (selectedIndex > 0)
                 {
                     selectedIndex--;
                     txDataBox.SelectionStart = txDataBox.Text.Length;
-                    txDataBox.Text = storedHistory[selectedIndex]; 
+                    txDataBox.Text = storedHistory[selectedIndex];
                 }
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -561,26 +576,34 @@ namespace BetterSerialMonitor
             }
 
             string toSend = txDataBox.Text;
-            AddToHistory(toSend);
-
-            try
-            {
-                toSend = Regex.Replace(toSend, "(?:%|&|0x)(([0-9a-fA-F]{1,2})+)", matchByteToString);
-            }
-            catch(Exception e)
-            {
-                string msg = string.Format("Could not parse byte escape, sending as text\nError: {0}", e.Message);
-                MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            AddToHistory(toSend);            
 
             if (sendingTextButton.Checked)
             {
-                AddToHistory(toSend);
+                try
+                {
+                    var substrs = Regex.Split(toSend, "(?:%|&|0x)((?:[0-9a-fA-F]{2})+)");
+                    foreach(string str in substrs)
+                    {
+                        if (Regex.IsMatch(str, "([0-9a-fA-F]{2})+"))
+                        {
+                            byte[] bversion = matchByteToString(str);
+                            port.Write(bversion, 0, bversion.Length);
+                        }
+                        else
+                            port.Write(str);
+                    }
+                }
+                catch(Exception e)
+                {
+                    string msg = string.Format("Could not parse byte escape, sending as text\nError: {0}", e.Message);
+                    MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 
                 if (sendNewline.Checked)
-                    port.WriteLine(toSend);
-                else
-                    port.Write(toSend);
+                    port.WriteLine("");
+                //else
+                //    port.Write(toSend);
             }
             else
             {
@@ -635,10 +658,10 @@ namespace BetterSerialMonitor
 
         private void openOnEnter(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter)
             {
                 try { openPort(); }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(string.Format("Cannot open port.\nError: {1}", ex.Message), "Error opening port", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -646,7 +669,7 @@ namespace BetterSerialMonitor
                 if (port.IsOpen)
                 {
                     e.Handled = true;
-                    e.SuppressKeyPress = true; 
+                    e.SuppressKeyPress = true;
                 }
             }
         }
@@ -663,7 +686,7 @@ namespace BetterSerialMonitor
         //{
         //    if (!port.IsOpen)
         //        return;
-            
+
         //    switch(icsCommands.SelectedIndex)
         //    {
         //        case 0:
@@ -734,12 +757,12 @@ namespace BetterSerialMonitor
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            switch(keyData)
+            switch (keyData)
             {
                 case Keys.Escape:
                     if (port.IsOpen)
                     {
-                        portCloseButton_Click(this, null); 
+                        portCloseButton_Click(this, null);
                     }
                     return true;
                 default:
@@ -756,7 +779,7 @@ namespace BetterSerialMonitor
 
         private void txDataBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if(cursorPosition != 0)
+            if (cursorPosition != 0)
             {
                 txDataBox.SelectionLength = 0;
                 txDataBox.SelectionStart = cursorPosition;

@@ -6,9 +6,12 @@ Allows sending text with intermixed raw bytes (prefixed with %, 0x, or &). For e
 
     This is a %7F string
 
-will send `This is a `, followed by the byte `7F` (the integer 127), then ` string`. 
+will send `This is a `, followed by the byte `7F` (the integer 127), then ` string`. You can also specify multiple consecutive bytes with one prefix if you write an even number of hex characters, for example:
 
-In "Send Data" mode, give decimal or hex bytes separated by spaces, commas, or semicolons. 
+    %7F4EAC
+will send all three bytes consecutively, however `%7F4AE` will only send the bytes `7F` and `4A`, and then the character capital E (ASCII code `0x45`).
+
+In "Send Data" mode, give decimal or hex bytes separated by spaces, commas, periods, or semicolons. 
 
 Platforms
 ---------
