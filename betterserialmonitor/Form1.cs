@@ -561,7 +561,6 @@ namespace BetterSerialMonitor
             }
 
             string toSend = txDataBox.Text;
-            AddToHistory(toSend);
 
             try
             {
@@ -621,7 +620,7 @@ namespace BetterSerialMonitor
                     if (sendNewline.Checked)
                         port.WriteLine("");
 
-                    //AddToHistory(Encoding.ASCII.GetString(bytes));
+                    AddToHistory(Encoding.ASCII.GetString(bytes));
                 }
                 else
                     MessageBox.Show("Could not parse data", "Unknown error", MessageBoxButtons.OK, MessageBoxIcon.Error);
