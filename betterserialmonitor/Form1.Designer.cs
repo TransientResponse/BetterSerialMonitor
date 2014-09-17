@@ -49,6 +49,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.baudRateSetting = new System.Windows.Forms.ComboBox();
             this.txControls = new System.Windows.Forms.GroupBox();
+            this.txDataBox = new System.Windows.Forms.ComboBox();
+            this.clearTxBtn = new System.Windows.Forms.Button();
             this.historyClearButton = new System.Windows.Forms.Button();
             this.clearSendBox = new System.Windows.Forms.CheckBox();
             this.sendButton = new System.Windows.Forms.Button();
@@ -64,8 +66,6 @@
             this.showTextButton = new System.Windows.Forms.RadioButton();
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
-            this.txDataBox = new System.Windows.Forms.TextBox();
-            this.clearTxBtn = new System.Windows.Forms.Button();
             this.portSettings.SuspendLayout();
             this.txControls.SuspendLayout();
             this.rxControls.SuspendLayout();
@@ -262,8 +262,8 @@
             // 
             this.txControls.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txControls.Controls.Add(this.clearTxBtn);
             this.txControls.Controls.Add(this.txDataBox);
+            this.txControls.Controls.Add(this.clearTxBtn);
             this.txControls.Controls.Add(this.historyClearButton);
             this.txControls.Controls.Add(this.clearSendBox);
             this.txControls.Controls.Add(this.sendButton);
@@ -276,6 +276,24 @@
             this.txControls.TabIndex = 1;
             this.txControls.TabStop = false;
             this.txControls.Text = "Data to Send";
+            // 
+            // txDataBox
+            // 
+            this.txDataBox.FormattingEnabled = true;
+            this.txDataBox.Location = new System.Drawing.Point(10, 20);
+            this.txDataBox.Name = "txDataBox";
+            this.txDataBox.Size = new System.Drawing.Size(417, 21);
+            this.txDataBox.TabIndex = 10;
+            // 
+            // clearTxBtn
+            // 
+            this.clearTxBtn.Location = new System.Drawing.Point(448, 44);
+            this.clearTxBtn.Name = "clearTxBtn";
+            this.clearTxBtn.Size = new System.Drawing.Size(75, 23);
+            this.clearTxBtn.TabIndex = 9;
+            this.clearTxBtn.Text = "Clear box";
+            this.clearTxBtn.UseVisualStyleBackColor = true;
+            this.clearTxBtn.Click += new System.EventHandler(this.clearTxBtn_Click);
             // 
             // historyClearButton
             // 
@@ -341,7 +359,7 @@
             // 
             this.sendNewline.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sendNewline.AutoSize = true;
-            this.sendNewline.Location = new System.Drawing.Point(407, 23);
+            this.sendNewline.Location = new System.Drawing.Point(433, 22);
             this.sendNewline.Name = "sendNewline";
             this.sendNewline.Size = new System.Drawing.Size(90, 17);
             this.sendNewline.TabIndex = 1;
@@ -449,27 +467,9 @@
             this.rxDataBox.Size = new System.Drawing.Size(594, 233);
             this.rxDataBox.TabIndex = 0;
             // 
-            // txDataBox
-            // 
-            this.txDataBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txDataBox.Location = new System.Drawing.Point(10, 20);
-            this.txDataBox.Name = "txDataBox";
-            this.txDataBox.Size = new System.Drawing.Size(391, 21);
-            this.txDataBox.TabIndex = 8;
-            this.txDataBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.sendOnEnter);
-            // 
-            // clearTxBtn
-            // 
-            this.clearTxBtn.Location = new System.Drawing.Point(448, 44);
-            this.clearTxBtn.Name = "clearTxBtn";
-            this.clearTxBtn.Size = new System.Drawing.Size(75, 23);
-            this.clearTxBtn.TabIndex = 9;
-            this.clearTxBtn.Text = "Clear box";
-            this.clearTxBtn.UseVisualStyleBackColor = true;
-            this.clearTxBtn.Click += new System.EventHandler(this.clearTxBtn_Click);
-            // 
             // Form1
             // 
+            this.AcceptButton = this.sendButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(642, 525);
@@ -525,8 +525,8 @@
         private System.Windows.Forms.CheckBox pauseBox;
         private System.Windows.Forms.CheckBox autoscrollBox;
         private System.Windows.Forms.Button historyClearButton;
-        private System.Windows.Forms.TextBox txDataBox;
         private System.Windows.Forms.Button clearTxBtn;
+        private System.Windows.Forms.ComboBox txDataBox;
     }
 }
 

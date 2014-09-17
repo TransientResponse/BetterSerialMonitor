@@ -37,7 +37,7 @@ namespace BetterSerialMonitor
         private int scrollPosition = 0;
         private int cursorPosition = 0;
         private int selectedIndex = 0;
-        private List<string> storedHistory = new List<string>();
+        //private List<string> storedHistory = new List<string>();
 
         const uint MAX_HISTORY = 256;
 
@@ -473,7 +473,7 @@ namespace BetterSerialMonitor
             }
             else
             {
-                storedHistory.Clear();
+                txDataBox.Items.Clear();
             }
         }
 
@@ -486,9 +486,9 @@ namespace BetterSerialMonitor
             }
             else
             {
-                storedHistory.Insert(0, line);
-                if (storedHistory.Count > MAX_HISTORY)
-                    storedHistory.RemoveAt((int)MAX_HISTORY - 1);
+                txDataBox.Items.Insert(0, line);
+                if (txDataBox.Items.Count > MAX_HISTORY)
+                    txDataBox.Items.RemoveAt((int)MAX_HISTORY - 1);
             }
         }
         #endregion
@@ -501,34 +501,13 @@ namespace BetterSerialMonitor
 
         private void sendOnEnter(object sender, System.Windows.Forms.KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if(e.KeyCode == Keys.Up && clearSendBox.Checked)
             {
-                try
-                {
-                    sendData();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(String.Format("ERROR: {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-                if (selectedIndex >= 0)
-                    selectedIndex = -1;
-
-                if (!clearSendBox.Checked)
-                    cursorPosition = txDataBox.SelectionStart;
-                else
-                    cursorPosition = 0;
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
-            else if(e.KeyCode == Keys.Up && clearSendBox.Checked)
-            {
-                if (selectedIndex < storedHistory.Count-1)
+                if (selectedIndex < txDataBox.Items.Count-1)
                 {
                     selectedIndex++;
                     txDataBox.SelectionStart = txDataBox.Text.Length;
-                    txDataBox.Text = storedHistory[selectedIndex]; 
+                    txDataBox.Text = (string)txDataBox.Items[selectedIndex]; 
                 }
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -539,7 +518,7 @@ namespace BetterSerialMonitor
                 {
                     selectedIndex--;
                     txDataBox.SelectionStart = txDataBox.Text.Length;
-                    txDataBox.Text = storedHistory[selectedIndex]; 
+                    txDataBox.Text = (string)txDataBox.Items[selectedIndex]; 
                 }
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -556,24 +535,31 @@ namespace BetterSerialMonitor
 
             string toSend = txDataBox.Text;
 
-            try
-            {
-                toSend = Regex.Replace(toSend, "(%|0x|&)([0-9a-fA-F]{1,2})", matchByteToString);
-            }
-            catch(Exception e)
-            {
-                string msg = string.Format("Could not parse byte escape, sending as text\nError: {0}", e.Message);
-                MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            
 
             if (sendingTextButton.Checked)
             {
                 AddToHistory(toSend);
+
+                try
+                {
+                    string[] components = Regex.Split(toSend, "((?:%|&|0x)[0-9a-fA-F]{1,2})");
+                    foreach (string component in components)
+                    {
+                        if (Regex.IsMatch(component, "(?:%|&|0x)([0-9a-fA-F]{1,2})"))
+                            port.Write(new byte[] { byte.Parse(Regex.Match(component, "(?:%|&|0x)([0-9a-fA-F]{1,2})").Groups[1].Value, System.Globalization.NumberStyles.HexNumber) }, 0, 1);
+                        else
+                            port.Write(component);
+                    }
+                }
+                catch (Exception e)
+                {
+                    string msg = string.Format("Could not parse byte escape, sending as text\nError: {0}", e.Message);
+                    MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 
                 if (sendNewline.Checked)
-                    port.WriteLine(toSend);
-                else
-                    port.Write(toSend);
+                    port.WriteLine("");
             }
             else
             {
@@ -618,6 +604,14 @@ namespace BetterSerialMonitor
                 }
                 else
                     MessageBox.Show("Could not parse data", "Unknown error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (selectedIndex >= 0)
+                    selectedIndex = -1;
+
+                if (!clearSendBox.Checked)
+                    cursorPosition = txDataBox.SelectionStart;
+                else
+                    cursorPosition = 0;
 
             }
 
