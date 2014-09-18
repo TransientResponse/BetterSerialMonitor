@@ -758,7 +758,7 @@ namespace BetterSerialMonitor
 
         private void clearTxBtn_Click(object sender, EventArgs e)
         {
-            SetRxText("");
+            txDataBox.Text = "";
         }
     }
 }
