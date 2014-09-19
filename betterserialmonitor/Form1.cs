@@ -30,6 +30,8 @@ namespace BetterSerialMonitor
         private delegate void FixedScroller(int sto);
         private delegate void HistoryInserter(string line);
         private delegate void HistoryClearer();
+        private delegate int[] NewlineIndexer();
+        private delegate int SelectionStartGetter();
         #endregion
 
         private string StoredRxText; //Keep this around
@@ -37,6 +39,7 @@ namespace BetterSerialMonitor
         private int scrollPosition = 0;
         private int cursorPosition = 0;
         private int selectedIndex = 0;
+        private int[] newlines;
         //private List<string> storedHistory = new List<string>();
 
         const uint MAX_HISTORY = 256;
@@ -95,6 +98,7 @@ namespace BetterSerialMonitor
             clearSendBox.Enabled = false;
             sendNewline.Enabled = false;
             clearTxBtn.Enabled = false;
+            autoscrollBox.Enabled = false;
 
 #if DEBUG
             /* FOR TESTING */
@@ -212,6 +216,8 @@ namespace BetterSerialMonitor
                 clearSendBox.Enabled = true;
                 sendNewline.Enabled = true;
                 clearTxBtn.Enabled = true;
+                if (!autoscrollBox.Checked)
+                    psLineSel.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -253,6 +259,7 @@ namespace BetterSerialMonitor
             clearSendBox.Enabled = false;
             sendNewline.Enabled = false;
             clearTxBtn.Enabled = false;
+            psLineSel.Enabled = false;
         }
 
         private void sendButton_Click(object sender, EventArgs e)
@@ -264,6 +271,7 @@ namespace BetterSerialMonitor
         {
             rxDataBox.Text = string.Empty; //Easy peasy.
             StoredRxText = string.Empty; //Also kill this
+            autoscrollBox.Enabled = false;
         }
 
         private string bothToText(string both)
@@ -383,7 +391,7 @@ namespace BetterSerialMonitor
             else
                 buffer.Append(convertToHex(newData));
 
-            scrollPosition = rxDataBox.SelectionStart;
+            scrollPosition = GetSelectionStart();
 
             if (pauseBox.Checked) //StoredRxText has been updated, so the new text is not lost
             {
@@ -400,18 +408,14 @@ namespace BetterSerialMonitor
                 SetRxText(buffer.ToString()); 
             }
 
+            newlines = IndexNewlines();
+            psLineSel.Maximum = newlines.Length-1;
+
             if (autoscrollBox.Checked)
                 AutoScrollerator();
             else
                 ScrollTo(scrollPosition);
         }
-
-        #if __MonoCS__
-        private void manualRefresh(object sender, System.EventArgs e)
-        {
-            updateRxBox();
-        }
-        #endif
 
         #region Delegate implementations
         private void SetRxText(string txt)
@@ -491,12 +495,47 @@ namespace BetterSerialMonitor
                     txDataBox.Items.RemoveAt((int)MAX_HISTORY - 1);
             }
         }
+
+        private int[] IndexNewlines()
+        {
+            if(this.rxDataBox.InvokeRequired)
+            {
+                NewlineIndexer ni = new NewlineIndexer(IndexNewlines);
+                return (int[])this.Invoke(ni);
+            }
+            else
+            {
+                List<int> nlIndeces = new List<int>();
+                string text = rxDataBox.Text;
+                int NL = text.IndexOf('\n', 0);
+                while(NL >= 0)
+                {
+                    nlIndeces.Add(NL);
+                    NL = text.IndexOf('\n', NL + 1);
+                }
+                return nlIndeces.ToArray();
+            }
+        }
+
+        private int GetSelectionStart()
+        {
+            if(this.rxDataBox.InvokeRequired)
+            {
+                SelectionStartGetter ssg = new SelectionStartGetter(GetSelectionStart);
+                return (int)this.Invoke(ssg);
+            }
+            else
+            {
+                return rxDataBox.SelectionStart;
+            }
+        }
         #endregion
 
         private void updateBox(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             System.Threading.Thread.Sleep(30);
             updateRxBox();
+            autoscrollBox.Enabled = true;
         }
 
         private void sendOnEnter(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -646,31 +685,6 @@ namespace BetterSerialMonitor
                 portNameBox.Items.Add(portt);
         }
 
-        //private void icsCommands_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-        //    if (!port.IsOpen)
-        //        return;
-            
-        //    switch(icsCommands.SelectedIndex)
-        //    {
-        //        case 0:
-        //            port.WriteLine("*IDN?;");
-        //            break;
-        //        case 1:
-        //            port.WriteLine("PROGRAM:CURRENT,500;");
-        //            break;
-        //        case 2:
-        //            port.WriteLine("PROGRAM:CURRENT,800;");
-        //            break;
-        //        case 3:
-        //            port.WriteLine("PROGRAM:CURRENT,1000");
-        //            break;
-        //        default:
-        //            MessageBox.Show("Unkown iCS option", "TILT", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //            break;
-        //    }
-        //}
-
         private void port_ErrorReceived(object sender, System.IO.Ports.SerialErrorReceivedEventArgs e)
         {
             MessageBox.Show("Received error on COM port", "Serial port error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -707,11 +721,21 @@ namespace BetterSerialMonitor
 
         private void autoscrollBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (autoscrollBox.Checked)
-                return;
-
-            //If now false
-            scrollPosition = rxDataBox.Text.Length;
+            if (!autoscrollBox.Checked)
+            {
+                newlines = IndexNewlines();
+                if (newlines.Length == 0)
+                    return;
+                psLineSel.Maximum = newlines.Length - 1;
+                psLineSel.Value = newlines.Length - 1;
+                scrollPosition = newlines.Last();
+                psLineSel.Enabled = true;
+            }
+            else
+            {
+                scrollPosition = rxDataBox.Text.Length;
+                psLineSel.Enabled = false;
+            }
         }
 
         private void historyClearButton_Click(object sender, EventArgs e)
@@ -759,6 +783,17 @@ namespace BetterSerialMonitor
         private void clearTxBtn_Click(object sender, EventArgs e)
         {
             txDataBox.Text = "";
+        }
+
+        private void setAutoscroll(object sender, EventArgs e)
+        {
+            scrollPosition = (int)psLineSel.Value;
+            ScrollTo(newlines[scrollPosition]);
+        }
+
+        private void manualRefresh(object sender, MouseEventArgs e)
+        {
+            updateRxBox();
         }
     }
 }

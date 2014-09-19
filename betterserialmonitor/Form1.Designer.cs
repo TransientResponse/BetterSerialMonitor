@@ -66,9 +66,12 @@
             this.showTextButton = new System.Windows.Forms.RadioButton();
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
+            this.psLineSel = new System.Windows.Forms.NumericUpDown();
+            this.lineStayLbl = new System.Windows.Forms.Label();
             this.portSettings.SuspendLayout();
             this.txControls.SuspendLayout();
             this.rxControls.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.psLineSel)).BeginInit();
             this.SuspendLayout();
             // 
             // port
@@ -96,7 +99,7 @@
             this.portSettings.Controls.Add(this.baudRateSetting);
             this.portSettings.Location = new System.Drawing.Point(12, 12);
             this.portSettings.Name = "portSettings";
-            this.portSettings.Size = new System.Drawing.Size(610, 137);
+            this.portSettings.Size = new System.Drawing.Size(655, 137);
             this.portSettings.TabIndex = 0;
             this.portSettings.TabStop = false;
             this.portSettings.Text = "Port Settings";
@@ -194,7 +197,7 @@
             // portCloseButton
             // 
             this.portCloseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.portCloseButton.Location = new System.Drawing.Point(529, 36);
+            this.portCloseButton.Location = new System.Drawing.Point(574, 36);
             this.portCloseButton.Name = "portCloseButton";
             this.portCloseButton.Size = new System.Drawing.Size(75, 23);
             this.portCloseButton.TabIndex = 7;
@@ -205,7 +208,7 @@
             // portOpenButton
             // 
             this.portOpenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.portOpenButton.Location = new System.Drawing.Point(529, 12);
+            this.portOpenButton.Location = new System.Drawing.Point(574, 12);
             this.portOpenButton.Name = "portOpenButton";
             this.portOpenButton.Size = new System.Drawing.Size(75, 23);
             this.portOpenButton.TabIndex = 6;
@@ -272,22 +275,24 @@
             this.txControls.Controls.Add(this.sendNewline);
             this.txControls.Location = new System.Drawing.Point(12, 155);
             this.txControls.Name = "txControls";
-            this.txControls.Size = new System.Drawing.Size(610, 73);
+            this.txControls.Size = new System.Drawing.Size(655, 73);
             this.txControls.TabIndex = 1;
             this.txControls.TabStop = false;
             this.txControls.Text = "Data to Send";
             // 
             // txDataBox
             // 
+            this.txDataBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txDataBox.FormattingEnabled = true;
             this.txDataBox.Location = new System.Drawing.Point(10, 20);
             this.txDataBox.Name = "txDataBox";
-            this.txDataBox.Size = new System.Drawing.Size(417, 21);
+            this.txDataBox.Size = new System.Drawing.Size(417, 23);
             this.txDataBox.TabIndex = 10;
             // 
             // clearTxBtn
             // 
-            this.clearTxBtn.Location = new System.Drawing.Point(448, 44);
+            this.clearTxBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.clearTxBtn.Location = new System.Drawing.Point(493, 44);
             this.clearTxBtn.Name = "clearTxBtn";
             this.clearTxBtn.Size = new System.Drawing.Size(75, 23);
             this.clearTxBtn.TabIndex = 9;
@@ -298,7 +303,7 @@
             // historyClearButton
             // 
             this.historyClearButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.historyClearButton.Location = new System.Drawing.Point(529, 44);
+            this.historyClearButton.Location = new System.Drawing.Point(574, 44);
             this.historyClearButton.Name = "historyClearButton";
             this.historyClearButton.Size = new System.Drawing.Size(75, 23);
             this.historyClearButton.TabIndex = 7;
@@ -320,7 +325,7 @@
             // 
             this.sendButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sendButton.Enabled = false;
-            this.sendButton.Location = new System.Drawing.Point(529, 14);
+            this.sendButton.Location = new System.Drawing.Point(574, 14);
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(75, 23);
             this.sendButton.TabIndex = 4;
@@ -359,7 +364,7 @@
             // 
             this.sendNewline.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sendNewline.AutoSize = true;
-            this.sendNewline.Location = new System.Drawing.Point(433, 22);
+            this.sendNewline.Location = new System.Drawing.Point(478, 22);
             this.sendNewline.Name = "sendNewline";
             this.sendNewline.Size = new System.Drawing.Size(90, 17);
             this.sendNewline.TabIndex = 1;
@@ -371,6 +376,8 @@
             this.rxControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.rxControls.Controls.Add(this.lineStayLbl);
+            this.rxControls.Controls.Add(this.psLineSel);
             this.rxControls.Controls.Add(this.autoscrollBox);
             this.rxControls.Controls.Add(this.pauseBox);
             this.rxControls.Controls.Add(this.showBothButton);
@@ -380,7 +387,7 @@
             this.rxControls.Controls.Add(this.rxDataBox);
             this.rxControls.Location = new System.Drawing.Point(12, 234);
             this.rxControls.Name = "rxControls";
-            this.rxControls.Size = new System.Drawing.Size(610, 279);
+            this.rxControls.Size = new System.Drawing.Size(655, 279);
             this.rxControls.TabIndex = 2;
             this.rxControls.TabStop = false;
             this.rxControls.Text = "Data Received";
@@ -388,7 +395,7 @@
             // autoscrollBox
             // 
             this.autoscrollBox.AutoSize = true;
-            this.autoscrollBox.Location = new System.Drawing.Point(442, 17);
+            this.autoscrollBox.Location = new System.Drawing.Point(441, 17);
             this.autoscrollBox.Name = "autoscrollBox";
             this.autoscrollBox.Size = new System.Drawing.Size(72, 17);
             this.autoscrollBox.TabIndex = 6;
@@ -464,15 +471,35 @@
             this.rxDataBox.Name = "rxDataBox";
             this.rxDataBox.ReadOnly = true;
             this.rxDataBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.rxDataBox.Size = new System.Drawing.Size(594, 233);
+            this.rxDataBox.Size = new System.Drawing.Size(639, 233);
             this.rxDataBox.TabIndex = 0;
+            this.rxDataBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.manualRefresh);
+            // 
+            // psLineSel
+            // 
+            this.psLineSel.Enabled = false;
+            this.psLineSel.Location = new System.Drawing.Point(601, 14);
+            this.psLineSel.Name = "psLineSel";
+            this.psLineSel.Size = new System.Drawing.Size(48, 20);
+            this.psLineSel.TabIndex = 8;
+            this.psLineSel.ValueChanged += new System.EventHandler(this.setAutoscroll);
+            // 
+            // lineStayLbl
+            // 
+            this.lineStayLbl.AutoSize = true;
+            this.lineStayLbl.Location = new System.Drawing.Point(523, 17);
+            this.lineStayLbl.Name = "lineStayLbl";
+            this.lineStayLbl.Size = new System.Drawing.Size(72, 13);
+            this.lineStayLbl.TabIndex = 9;
+            this.lineStayLbl.Text = "or stay on line";
+            this.lineStayLbl.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // Form1
             // 
             this.AcceptButton = this.sendButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 525);
+            this.ClientSize = new System.Drawing.Size(687, 525);
             this.Controls.Add(this.rxControls);
             this.Controls.Add(this.txControls);
             this.Controls.Add(this.portSettings);
@@ -487,6 +514,7 @@
             this.txControls.PerformLayout();
             this.rxControls.ResumeLayout(false);
             this.rxControls.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.psLineSel)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -527,6 +555,8 @@
         private System.Windows.Forms.Button historyClearButton;
         private System.Windows.Forms.Button clearTxBtn;
         private System.Windows.Forms.ComboBox txDataBox;
+        private System.Windows.Forms.NumericUpDown psLineSel;
+        private System.Windows.Forms.Label lineStayLbl;
     }
 }
 
