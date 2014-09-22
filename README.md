@@ -15,7 +15,7 @@ Platforms
 
 It uses the .NET Framework, so it'll work on Windows easily and on MacOS and Linux if you have [Mono](http://www.mono-project.com/) installed. I have tested previous versions on Mac and Linux and they worked, however I cannot test on Mac regularly.  
 
-Due to a limitation in Mono itself, this program won't automatically refresh the incoming data window on non-Windows platforms. You need to do this yourself by clicking on the window (the lower greyed-out text box). The click-to-refresh functionality is only available if you compile it with Mono. 
+Due to a limitation in Mono itself, this program won't automatically refresh the incoming data window on non-Windows platforms. You need to do this yourself by clicking on the window (the lower greyed-out text box). 
 
 Installation
 ------------
