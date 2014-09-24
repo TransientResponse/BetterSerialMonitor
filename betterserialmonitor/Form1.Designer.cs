@@ -58,6 +58,8 @@
             this.sendingTextButton = new System.Windows.Forms.RadioButton();
             this.sendNewline = new System.Windows.Forms.CheckBox();
             this.rxControls = new System.Windows.Forms.GroupBox();
+            this.lineStayLbl = new System.Windows.Forms.Label();
+            this.psLineSel = new System.Windows.Forms.NumericUpDown();
             this.autoscrollBox = new System.Windows.Forms.CheckBox();
             this.pauseBox = new System.Windows.Forms.CheckBox();
             this.showBothButton = new System.Windows.Forms.RadioButton();
@@ -66,8 +68,6 @@
             this.showTextButton = new System.Windows.Forms.RadioButton();
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
-            this.psLineSel = new System.Windows.Forms.NumericUpDown();
-            this.lineStayLbl = new System.Windows.Forms.Label();
             this.portSettings.SuspendLayout();
             this.txControls.SuspendLayout();
             this.rxControls.SuspendLayout();
@@ -288,6 +288,7 @@
             this.txDataBox.Name = "txDataBox";
             this.txDataBox.Size = new System.Drawing.Size(417, 23);
             this.txDataBox.TabIndex = 10;
+            this.txDataBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.changeItem);
             // 
             // clearTxBtn
             // 
@@ -345,7 +346,6 @@
             this.sendDataTT.SetToolTip(this.sendingDataButton, "Enter a series of bytes in decimal or hex, separated by spaces, commas, \r\nperiods" +
         ", or semicolons. No prefixes are necessary. ");
             this.sendingDataButton.UseVisualStyleBackColor = true;
-            this.sendingDataButton.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
             // 
             // sendingTextButton
             // 
@@ -391,6 +391,25 @@
             this.rxControls.TabIndex = 2;
             this.rxControls.TabStop = false;
             this.rxControls.Text = "Data Received";
+            // 
+            // lineStayLbl
+            // 
+            this.lineStayLbl.AutoSize = true;
+            this.lineStayLbl.Location = new System.Drawing.Point(523, 17);
+            this.lineStayLbl.Name = "lineStayLbl";
+            this.lineStayLbl.Size = new System.Drawing.Size(72, 13);
+            this.lineStayLbl.TabIndex = 9;
+            this.lineStayLbl.Text = "or stay on line";
+            this.lineStayLbl.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // psLineSel
+            // 
+            this.psLineSel.Enabled = false;
+            this.psLineSel.Location = new System.Drawing.Point(601, 14);
+            this.psLineSel.Name = "psLineSel";
+            this.psLineSel.Size = new System.Drawing.Size(48, 20);
+            this.psLineSel.TabIndex = 8;
+            this.psLineSel.ValueChanged += new System.EventHandler(this.setAutoscroll);
             // 
             // autoscrollBox
             // 
@@ -474,25 +493,6 @@
             this.rxDataBox.Size = new System.Drawing.Size(639, 233);
             this.rxDataBox.TabIndex = 0;
             this.rxDataBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.manualRefresh);
-            // 
-            // psLineSel
-            // 
-            this.psLineSel.Enabled = false;
-            this.psLineSel.Location = new System.Drawing.Point(601, 14);
-            this.psLineSel.Name = "psLineSel";
-            this.psLineSel.Size = new System.Drawing.Size(48, 20);
-            this.psLineSel.TabIndex = 8;
-            this.psLineSel.ValueChanged += new System.EventHandler(this.setAutoscroll);
-            // 
-            // lineStayLbl
-            // 
-            this.lineStayLbl.AutoSize = true;
-            this.lineStayLbl.Location = new System.Drawing.Point(523, 17);
-            this.lineStayLbl.Name = "lineStayLbl";
-            this.lineStayLbl.Size = new System.Drawing.Size(72, 13);
-            this.lineStayLbl.TabIndex = 9;
-            this.lineStayLbl.Text = "or stay on line";
-            this.lineStayLbl.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // Form1
             // 

@@ -18,11 +18,6 @@ namespace BetterSerialMonitor
             port.Encoding = Encoding.ASCII;
         }
 
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
         #region Delegate definitions
         private delegate void RxTextSetter(string text);
         private delegate bool RxFocusChecker();
@@ -657,6 +652,9 @@ namespace BetterSerialMonitor
             //Clear the box once its contents are sent
             if (clearSendBox.Checked)
                 txDataBox.Text = string.Empty;
+
+            //Stop it going out of order.
+            txDataBox.SelectedIndex = -1;
         }
 
         private void openOnEnter(object sender, KeyEventArgs e)
@@ -794,6 +792,37 @@ namespace BetterSerialMonitor
         private void manualRefresh(object sender, MouseEventArgs e)
         {
             updateRxBox();
+        }
+
+        private void changeItem(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up)
+            {
+                if (txDataBox.SelectedIndex < MAX_HISTORY - 1)
+                {
+                    txDataBox.SelectedIndex++;
+                    txDataBox.SelectionStart = txDataBox.Text.Length;
+                    txDataBox.SelectionLength = 0;
+                }
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                if (txDataBox.SelectedIndex >= 0)
+                {
+                    txDataBox.SelectedIndex--;
+                    txDataBox.SelectionStart = txDataBox.Text.Length;
+                    txDataBox.SelectionLength = 0;
+                }
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            else
+            {
+                e.Handled = false;
+                e.SuppressKeyPress = false;
+            }
         }
     }
 }
