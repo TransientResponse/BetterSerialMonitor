@@ -34,6 +34,7 @@ namespace BetterSerialMonitor
         private int scrollPosition = 0;
         private int cursorPosition = 0;
         private int selectedIndex = 0;
+        private static bool IGNORE;
         private int[] newlines;
         //private List<string> storedHistory = new List<string>();
 
@@ -404,7 +405,8 @@ namespace BetterSerialMonitor
             }
 
             newlines = IndexNewlines();
-            psLineSel.Maximum = newlines.Length-1;
+            if(newlines.Length != 0)
+                psLineSel.Maximum = newlines.Length-1;
 
             if (autoscrollBox.Checked)
                 AutoScrollerator();
@@ -785,6 +787,8 @@ namespace BetterSerialMonitor
 
         private void setAutoscroll(object sender, EventArgs e)
         {
+            if (IGNORE)
+                return;
             scrollPosition = (int)psLineSel.Value;
             ScrollTo(newlines[scrollPosition]);
         }

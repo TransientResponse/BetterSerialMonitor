@@ -406,6 +406,11 @@
             // 
             this.psLineSel.Enabled = false;
             this.psLineSel.Location = new System.Drawing.Point(601, 14);
+            this.psLineSel.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.psLineSel.Name = "psLineSel";
             this.psLineSel.Size = new System.Drawing.Size(48, 20);
             this.psLineSel.TabIndex = 8;
