@@ -18,7 +18,10 @@ namespace BetterSerialMonitor
             InitializeComponent();
             port.Encoding = Encoding.ASCII;
 
-            string settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
+            if (Type.GetType("Mono.Runtime") != null)
+                settingsfile = Environment.GetEnvironmentVariable("HOME") + "/.BetterSerialMonitor/settings.xml";
+            else
+                settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
 
             if (System.IO.File.Exists(settingsfile))
             {
@@ -200,6 +203,7 @@ namespace BetterSerialMonitor
         private int selectedIndex = 0;
         private static bool IGNORE;
         private int[] newlines;
+        private static string settingsfile;
         //private List<string> storedHistory = new List<string>();
 
         const uint MAX_HISTORY = 256;
@@ -983,7 +987,7 @@ namespace BetterSerialMonitor
 
         private void saveSettingsBtn_Click(object sender, EventArgs e)
         {
-            string settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
+            //string settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
             string parity = parityBox.Text;
             if (parity == "Always 1")
                 parity = "one";
