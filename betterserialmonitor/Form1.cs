@@ -59,7 +59,7 @@ namespace BetterSerialMonitor
                 temp = root["parity"];
                 string parity;
                 if (temp != null)
-                    parity = temp.InnerText;
+                    parity = temp.InnerText.ToLower();
                 else
                     parity = "none";
 
@@ -142,7 +142,7 @@ namespace BetterSerialMonitor
                 temp = root["line-end"];
                 string lineEnds;
                 if (temp != null)
-                    lineEnds = temp.InnerText;
+                    lineEnds = temp.InnerText.ToUpper();
                 else
                     lineEnds = "CRLF";
 
@@ -150,6 +150,9 @@ namespace BetterSerialMonitor
                 switch(lineEnds)
                 {
                     case "CRLF":
+                        eolCharsBox.SelectedIndex = 0;
+                        break;
+                    case "CR+LF":
                         eolCharsBox.SelectedIndex = 0;
                         break;
                     case "CR":
@@ -1001,7 +1004,7 @@ namespace BetterSerialMonitor
                 "    <data-bits>{2}</data-bits>\n" +
                 "    <stop-bits>{3}</stop-bits>\n" +
                 "    <line-end>{4}</line-end>\n" +
-                "</settings>", baudRateSetting.Text, parity, dataBitsList.SelectedItem, stopBitsList.SelectedItem.ToString().ToLower(), eolCharsBox.SelectedItem);
+                "</settings>", baudRateSetting.Text, parity.ToLower(), dataBitsList.SelectedItem, stopBitsList.SelectedItem.ToString().ToLower(), eolCharsBox.SelectedItem);
 
             System.IO.File.WriteAllText(settingsfile, xmlSets);
         }
