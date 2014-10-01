@@ -68,6 +68,7 @@
             this.showTextButton = new System.Windows.Forms.RadioButton();
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
+            this.saveSettingsBtn = new System.Windows.Forms.Button();
             this.portSettings.SuspendLayout();
             this.txControls.SuspendLayout();
             this.rxControls.SuspendLayout();
@@ -83,6 +84,7 @@
             // 
             this.portSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.portSettings.Controls.Add(this.saveSettingsBtn);
             this.portSettings.Controls.Add(this.dataBitsList);
             this.portSettings.Controls.Add(this.eolCharsBox);
             this.portSettings.Controls.Add(this.eolLabel);
@@ -108,6 +110,11 @@
             // 
             this.dataBitsList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.dataBitsList.FormattingEnabled = true;
+            this.dataBitsList.Items.AddRange(new object[] {
+            "5",
+            "6",
+            "7",
+            "8"});
             this.dataBitsList.Location = new System.Drawing.Point(278, 90);
             this.dataBitsList.Name = "dataBitsList";
             this.dataBitsList.Size = new System.Drawing.Size(47, 21);
@@ -253,8 +260,7 @@
             "19200",
             "38400",
             "57600",
-            "115200",
-            "115600"});
+            "115200"});
             this.baudRateSetting.Location = new System.Drawing.Point(138, 41);
             this.baudRateSetting.Name = "baudRateSetting";
             this.baudRateSetting.Size = new System.Drawing.Size(121, 23);
@@ -499,6 +505,16 @@
             this.rxDataBox.TabIndex = 0;
             this.rxDataBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.manualRefresh);
             // 
+            // saveSettingsBtn
+            // 
+            this.saveSettingsBtn.Location = new System.Drawing.Point(563, 108);
+            this.saveSettingsBtn.Name = "saveSettingsBtn";
+            this.saveSettingsBtn.Size = new System.Drawing.Size(85, 23);
+            this.saveSettingsBtn.TabIndex = 17;
+            this.saveSettingsBtn.Text = "Save settings";
+            this.saveSettingsBtn.UseVisualStyleBackColor = true;
+            this.saveSettingsBtn.Click += new System.EventHandler(this.saveSettingsBtn_Click);
+            // 
             // Form1
             // 
             this.AcceptButton = this.sendButton;
@@ -563,6 +579,7 @@
         private System.Windows.Forms.ComboBox txDataBox;
         private System.Windows.Forms.NumericUpDown psLineSel;
         private System.Windows.Forms.Label lineStayLbl;
+        private System.Windows.Forms.Button saveSettingsBtn;
     }
 }
 

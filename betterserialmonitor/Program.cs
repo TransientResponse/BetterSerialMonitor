@@ -17,5 +17,10 @@ namespace BetterSerialMonitor
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
+
+        public static string format(this string me, params object[] args)
+        {
+            return String.Format(me, args);
+        }
     }
 }

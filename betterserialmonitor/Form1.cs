@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using System.Windows.Forms;
 
 namespace BetterSerialMonitor
@@ -16,6 +17,169 @@ namespace BetterSerialMonitor
         {
             InitializeComponent();
             port.Encoding = Encoding.ASCII;
+
+            string settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
+
+            if (System.IO.File.Exists(settingsfile))
+            {
+                XmlDocument settings = new XmlDocument();
+                settings.Load(settingsfile);
+
+                XmlNode root = settings.SelectSingleNode("settings");
+                XmlElement temp;
+
+                //Baud rate
+                temp = root["baud-rate"];
+
+                int baud;
+                if (temp != null)
+                {
+                    bool res = int.TryParse(temp.InnerText, out baud);
+                    if(!res)
+                    {
+                        MessageBox.Show("Invalid baud rate ({0}) in settings file.".format(baud), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        baud = 9600;
+                    }
+                }
+                else
+                    baud = 9600;
+                if (baud % 100 != 0)
+                {
+                    MessageBox.Show("Invalid baud rate ({0}) in settings file.".format(baud), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    baudRateSetting.SelectedIndex = 1;
+                }
+                else
+                    baudRateSetting.Text = baud.ToString();
+
+                //Parity
+
+                temp = root["parity"];
+                string parity;
+                if (temp != null)
+                    parity = temp.InnerText;
+                else
+                    parity = "none";
+
+                switch(parity)
+                {
+                    case "none":
+                        parityBox.SelectedIndex = 0;
+                        break;
+                    case "even":
+                        parityBox.SelectedIndex = 1;
+                        break;
+                    case "odd":
+                        parityBox.SelectedIndex = 2;
+                        break;
+                    case "one":
+                        parityBox.SelectedIndex = 3;
+                        break;
+                    case "zero":
+                        parityBox.SelectedIndex = 4;
+                        break;
+                    default:
+                        parityBox.SelectedIndex = 0;
+                        MessageBox.Show("Invalid parity ({0}) in settings file.".format(parity), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+                }
+
+                //Stop bits
+                temp = root["stop-bits"];
+
+                float stopBits;
+                if (temp != null)
+                {
+                    bool res = float.TryParse(temp.InnerText, out stopBits);
+                    if (!res)
+                    {
+                        MessageBox.Show("Invalid stop bits ({0}) in settings file.".format(stopBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        stopBits = 1;
+                    }
+                }
+                else
+                    stopBits = 0;
+                if (stopBits == 0)
+                    stopBitsList.SelectedIndex = 0;
+                else if (stopBits == 1)
+                    stopBitsList.SelectedIndex = 1;
+                else if (stopBits == 1.5)
+                    stopBitsList.SelectedIndex = 2;
+                else if (stopBits == 2)
+                    stopBitsList.SelectedIndex = 3;
+                else
+                {
+                    stopBitsList.SelectedIndex = 1;
+                    MessageBox.Show("Invalid stop bits ({0}) in settings file.".format(stopBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                //Data bits
+                temp = root["data-bits"];
+                int dataBits;
+                if (temp != null)
+                {
+                    bool res = int.TryParse(temp.InnerText, out dataBits);
+                    if (!res)
+                    {
+                        MessageBox.Show("Invalid data bits ({0}) in settings file.".format(dataBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        dataBits = 8;
+                    }
+                }
+                else
+                    dataBits = 8;
+
+                if (dataBits < 5 || dataBits > 8)
+                {
+                    dataBitsList.SelectedIndex = 3;
+                    MessageBox.Show("Invalid data bits ({0}) in settings file.".format(dataBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                    dataBitsList.SelectedIndex = dataBits - 5;
+
+                //Line ending
+                temp = root["line-end"];
+                string lineEnds;
+                if (temp != null)
+                    lineEnds = temp.InnerText;
+                else
+                    lineEnds = "CRLF";
+
+
+                switch(lineEnds)
+                {
+                    case "CRLF":
+                        eolCharsBox.SelectedIndex = 0;
+                        break;
+                    case "CR":
+                        eolCharsBox.SelectedIndex = 1;
+                        break;
+                    case "LF":
+                        eolCharsBox.SelectedIndex = 2;
+                        break;
+                    default:
+                        MessageBox.Show("Invalid line endings ({0}) in settings file.".format(lineEnds), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        eolCharsBox.SelectedIndex = 0;
+                        break;
+                }
+            }//if
+            else//No settings file, set defaults
+            {
+                //Set default baud rate
+                baudRateSetting.SelectedIndex = 1;
+                //Set default data bits
+                //dataBitsList.Items.Add(5);
+                //dataBitsList.Items.Add(6);
+                //dataBitsList.Items.Add(7);
+                //dataBitsList.Items.Add(8);
+                dataBitsList.SelectedIndex = 3;
+
+                //Selected parity bits
+                parityBox.SelectedIndex = 0;
+                //Selected stop bits
+                stopBitsList.SelectedIndex = 1;
+                //Selected EOL
+                eolCharsBox.SelectedIndex = 0;
+            }
+            
         }
 
         #region Delegate definitions
@@ -53,21 +217,7 @@ namespace BetterSerialMonitor
             string[] ports = System.IO.Ports.SerialPort.GetPortNames();
             foreach (string portt in ports)
                 portNameBox.Items.Add(portt);
-            //Set default baud rate
-            baudRateSetting.SelectedIndex = 1;
-            //Set default data bits
-            dataBitsList.Items.Add(5);
-            dataBitsList.Items.Add(6);
-            dataBitsList.Items.Add(7);
-            dataBitsList.Items.Add(8);
-            dataBitsList.SelectedIndex = 3;
 
-            //Selected parity bits
-            parityBox.SelectedIndex = 0;
-            //Selected stop bits
-            stopBitsList.SelectedIndex = 1;
-            //Selected EOL
-            eolCharsBox.SelectedIndex = 0;
 
             //Disable close button
             portCloseButton.Enabled = false;
@@ -130,7 +280,7 @@ namespace BetterSerialMonitor
                 return;
             }
 
-            port.DataBits = (int)dataBitsList.SelectedItem;
+            port.DataBits = int.Parse((string)dataBitsList.SelectedItem);
 
             //Set parity bits
             switch(parityBox.SelectedText)
@@ -214,6 +364,7 @@ namespace BetterSerialMonitor
                 clearTxBtn.Enabled = true;
                 if (!autoscrollBox.Checked)
                     psLineSel.Enabled = true;
+                saveSettingsBtn.Enabled = false;
             }
             catch (Exception ex)
             {
@@ -256,6 +407,7 @@ namespace BetterSerialMonitor
             sendNewline.Enabled = false;
             clearTxBtn.Enabled = false;
             psLineSel.Enabled = false;
+            saveSettingsBtn.Enabled = true;
         }
 
         private void sendButton_Click(object sender, EventArgs e)
@@ -827,6 +979,27 @@ namespace BetterSerialMonitor
                 e.Handled = false;
                 e.SuppressKeyPress = false;
             }
+        }
+
+        private void saveSettingsBtn_Click(object sender, EventArgs e)
+        {
+            string settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
+            string parity = parityBox.Text;
+            if (parity == "Always 1")
+                parity = "one";
+            else if (parity == "Always 0")
+                parity = "zero";
+            string xmlSets = string.Format(
+                "<?xml version=\"1.0\"?>\n" +
+                "<settings>\n" +
+                "    <baud-rate>{0}</baud-rate>\n" +
+                "    <parity>{1}</parity>\n" +
+                "    <data-bits>{2}</data-bits>\n" +
+                "    <stop-bits>{3}</stop-bits>\n" +
+                "    <line-end>{4}</line-end>\n" +
+                "</settings>", baudRateSetting.Text, parity, dataBitsList.SelectedItem, stopBitsList.SelectedItem.ToString().ToLower(), eolCharsBox.SelectedItem);
+
+            System.IO.File.WriteAllText(settingsfile, xmlSets);
         }
     }
 }
