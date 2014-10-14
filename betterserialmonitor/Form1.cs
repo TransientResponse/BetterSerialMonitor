@@ -197,10 +197,11 @@ namespace BetterSerialMonitor
         private delegate void HistoryClearer();
         private delegate int[] NewlineIndexer();
         private delegate int SelectionStartGetter();
+        private delegate void AutoscrollEnabler(bool val);
         #endregion
 
-        private string StoredRxText; //Keep this around
-        private StringBuilder pauseBuffer = null;
+        private byte[] StoredRxText = new byte[]{}; //Keep this around
+        private List<byte> pauseBuffer = new List<byte>();
         private int scrollPosition = 0;
         private int cursorPosition = 0;
         private int selectedIndex = 0;
@@ -425,8 +426,8 @@ namespace BetterSerialMonitor
         private void clearButton_Click(object sender, EventArgs e)
         {
             rxDataBox.Text = string.Empty; //Easy peasy.
-            StoredRxText = string.Empty; //Also kill this
-            autoscrollBox.Enabled = false;
+            StoredRxText = new byte[]{}; //Also kill this
+            SetAutoscrollEnabled(false);
         }
 
         private string bothToText(string both)
@@ -479,7 +480,7 @@ namespace BetterSerialMonitor
 				else //Now on show text mode
 				{
                     //Reload last text
-                    SetRxText(StoredRxText);
+                    SetRxText(Encoding.ASCII.GetString(StoredRxText));
 				}
 			}
         }
@@ -491,13 +492,13 @@ namespace BetterSerialMonitor
                 port.Close();
         }
 
-        private string convertToBoth(string text)
+        private string convertToBoth(byte[] equiv)
         {
-            byte[] equiv = Encoding.ASCII.GetBytes(text);
+            //byte[] equiv = Encoding.ASCII.GetBytes(text);
             StringBuilder buffer = new StringBuilder();
             //buffer.Append(' ');
             for (int i = 0; i < equiv.Length; i++)
-                buffer.AppendFormat("{0:X2}[{1}] ", equiv[i], text[i]);
+                buffer.AppendFormat("{0:X2}[{1}] ", equiv[i], equiv[i] > 127 ? '?' : (char)equiv[i]);
 
             buffer.Remove(buffer.Length - 1, 1);
 
@@ -509,9 +510,9 @@ namespace BetterSerialMonitor
             return buffer.ToString();
         }
 
-        private string convertToHex(string text)
+        private string convertToHex(byte[] equiv)
         {
-            byte[] equiv = Encoding.ASCII.GetBytes(text);
+            //byte[] equiv = Encoding.ASCII.GetBytes(text);
             StringBuilder buffer = new StringBuilder();
             //buffer.Append(' ');
             for (int i = 0; i < equiv.Length; i++)
@@ -530,16 +531,21 @@ namespace BetterSerialMonitor
             //Buffer to store current text and add new text/data
             StringBuilder buffer = new StringBuilder(rxDataBox.Text);
 
-            string newData = port.ReadExisting();
+
+
+            //string newData = port.ReadExisting();
+            int N = port.BytesToRead;
+            byte[] newData = new byte[N];
+            port.Read(newData, 0, N);
             //Append new data, but keep text form handy
-            StoredRxText += newData;
-
-
+            List<byte> combined = new List<byte>(StoredRxText);
+            combined.AddRange(newData);
+            StoredRxText = combined.ToArray();
             
 
             //Simple if in text mode.
             if (showTextButton.Checked)
-                buffer.Append(newData);
+                buffer.Append(Encoding.ASCII.GetString(newData));
             //More complicated for hex mode.
             else if (showBothButton.Checked)
                 buffer.Append(convertToBoth(newData));
@@ -551,9 +557,9 @@ namespace BetterSerialMonitor
             if (pauseBox.Checked) //StoredRxText has been updated, so the new text is not lost
             {
                 if (pauseBuffer == null)
-                    pauseBuffer = new StringBuilder(newData);
+                    pauseBuffer = new List<byte>(newData);
                 else
-                    pauseBuffer.Append(newData);
+                    pauseBuffer.AddRange(newData);
 
                 return;
             }
@@ -685,13 +691,24 @@ namespace BetterSerialMonitor
                 return rxDataBox.SelectionStart;
             }
         }
+
+        private void SetAutoscrollEnabled(bool val)
+        {
+            if (autoscrollBox.InvokeRequired)
+            {
+                AutoscrollEnabler ae = new AutoscrollEnabler(SetAutoscrollEnabled);
+                this.Invoke(ae, val);
+            }
+            else
+                autoscrollBox.Enabled = val;
+        }
         #endregion
 
         private void updateBox(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             System.Threading.Thread.Sleep(30);
             updateRxBox();
-            autoscrollBox.Enabled = true;
+            SetAutoscrollEnabled(true);
         }
 
         private void sendOnEnter(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -758,6 +775,8 @@ namespace BetterSerialMonitor
             }
             else
             {
+                AddToHistory(toSend);
+                
                 char[] seps = new char[] { ' ', ',', '.', ';' };
                 string[] broken = toSend.Split(seps);
 
@@ -858,20 +877,20 @@ namespace BetterSerialMonitor
             if (pauseBuffer == null)//Null buffer? nothing to do.
                 return;
 
-            if (pauseBuffer.Length == 0)
+            if (pauseBuffer.Count == 0)
                 return;
 
-            string bufferedData = pauseBuffer.ToString();
+            //string bufferedData = pauseBuffer.ToString();
             StringBuilder buffer = new StringBuilder(rxDataBox.Text);
 
             //Simple if in text mode.
             if (showTextButton.Checked)
-                buffer.Append(bufferedData);
+                buffer.Append(Encoding.ASCII.GetString(pauseBuffer.ToArray()));
             //More complicated for hex mode.
             else if (showBothButton.Checked)
-                buffer.Append(convertToBoth(bufferedData));
+                buffer.Append(convertToBoth(pauseBuffer.ToArray()));
             else
-                buffer.Append(convertToHex(bufferedData));
+                buffer.Append(convertToHex(pauseBuffer.ToArray()));
 
             SetRxText(buffer.ToString());
 
