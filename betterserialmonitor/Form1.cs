@@ -270,9 +270,9 @@ namespace BetterSerialMonitor
                 return;
             }
 
-            if (portNameBox.Text == "AT_LUDICROUS_SPEED")
+            if (baudRateSetting.Text == "AT_LUDICROUS_SPEED")
             {
-                MessageBox.Show("YOU'VE GONE TO PLAID!", "LUDICROUS SPEED", MessageBoxButtons.OK);
+                MessageBox.Show("YOU'VE GONE TO PLAID!", "LUDICROUS SPEED", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
