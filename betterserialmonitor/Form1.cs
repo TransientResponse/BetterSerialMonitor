@@ -25,147 +25,7 @@ namespace BetterSerialMonitor
 
             if (System.IO.File.Exists(settingsfile))
             {
-                XmlDocument settings = new XmlDocument();
-                settings.Load(settingsfile);
-
-                XmlNode root = settings.SelectSingleNode("settings");
-                XmlElement temp;
-
-                //Baud rate
-                temp = root["baud-rate"];
-
-                int baud;
-                if (temp != null)
-                {
-                    bool res = int.TryParse(temp.InnerText, out baud);
-                    if(!res)
-                    {
-                        MessageBox.Show("Invalid baud rate ({0}) in settings file.".format(baud), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        baud = 9600;
-                    }
-                }
-                else
-                    baud = 9600;
-                if (baud % 100 != 0)
-                {
-                    MessageBox.Show("Invalid baud rate ({0}) in settings file.".format(baud), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    baudRateSetting.SelectedIndex = 1;
-                }
-                else
-                    baudRateSetting.Text = baud.ToString();
-
-                //Parity
-
-                temp = root["parity"];
-                string parity;
-                if (temp != null)
-                    parity = temp.InnerText.ToLower();
-                else
-                    parity = "none";
-
-                switch(parity)
-                {
-                    case "none":
-                        parityBox.SelectedIndex = 0;
-                        break;
-                    case "even":
-                        parityBox.SelectedIndex = 1;
-                        break;
-                    case "odd":
-                        parityBox.SelectedIndex = 2;
-                        break;
-                    case "one":
-                        parityBox.SelectedIndex = 3;
-                        break;
-                    case "zero":
-                        parityBox.SelectedIndex = 4;
-                        break;
-                    default:
-                        parityBox.SelectedIndex = 0;
-                        MessageBox.Show("Invalid parity ({0}) in settings file.".format(parity), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        break;
-                }
-
-                //Stop bits
-                temp = root["stop-bits"];
-
-                float stopBits;
-                if (temp != null)
-                {
-                    bool res = float.TryParse(temp.InnerText, out stopBits);
-                    if (!res)
-                    {
-                        MessageBox.Show("Invalid stop bits ({0}) in settings file.".format(stopBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        stopBits = 1;
-                    }
-                }
-                else
-                    stopBits = 0;
-                if (stopBits == 0)
-                    stopBitsList.SelectedIndex = 0;
-                else if (stopBits == 1)
-                    stopBitsList.SelectedIndex = 1;
-                else if (stopBits == 1.5)
-                    stopBitsList.SelectedIndex = 2;
-                else if (stopBits == 2)
-                    stopBitsList.SelectedIndex = 3;
-                else
-                {
-                    stopBitsList.SelectedIndex = 1;
-                    MessageBox.Show("Invalid stop bits ({0}) in settings file.".format(stopBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-
-                //Data bits
-                temp = root["data-bits"];
-                int dataBits;
-                if (temp != null)
-                {
-                    bool res = int.TryParse(temp.InnerText, out dataBits);
-                    if (!res)
-                    {
-                        MessageBox.Show("Invalid data bits ({0}) in settings file.".format(dataBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        dataBits = 8;
-                    }
-                }
-                else
-                    dataBits = 8;
-
-                if (dataBits < 5 || dataBits > 8)
-                {
-                    dataBitsList.SelectedIndex = 3;
-                    MessageBox.Show("Invalid data bits ({0}) in settings file.".format(dataBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                    dataBitsList.SelectedIndex = dataBits - 5;
-
-                //Line ending
-                temp = root["line-end"];
-                string lineEnds;
-                if (temp != null)
-                    lineEnds = temp.InnerText.ToUpper();
-                else
-                    lineEnds = "CRLF";
-
-
-                switch(lineEnds)
-                {
-                    case "CRLF":
-                        eolCharsBox.SelectedIndex = 0;
-                        break;
-                    case "CR+LF":
-                        eolCharsBox.SelectedIndex = 0;
-                        break;
-                    case "CR":
-                        eolCharsBox.SelectedIndex = 1;
-                        break;
-                    case "LF":
-                        eolCharsBox.SelectedIndex = 2;
-                        break;
-                    default:
-                        MessageBox.Show("Invalid line endings ({0}) in settings file.".format(lineEnds), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        eolCharsBox.SelectedIndex = 0;
-                        break;
-                }
+                LoadSettings(settingsfile);
             }//if
             else//No settings file, set defaults
             {
@@ -198,6 +58,13 @@ namespace BetterSerialMonitor
         private delegate int[] NewlineIndexer();
         private delegate int SelectionStartGetter();
         private delegate void AutoscrollEnabler(bool val);
+        
+        //I HATE CROSS-THREAD ACCESS RESTRICTION
+        private delegate void BaudTextSetter(int baud);
+        private delegate void ParitySetter(int index);
+        private delegate void StopBitsSetter(int index);
+        private delegate void EOLSetter(int index);
+        private delegate void DataBitsSetter(int index);
         #endregion
 
         private byte[] StoredRxText = new byte[]{}; //Keep this around
@@ -702,6 +569,73 @@ namespace BetterSerialMonitor
             else
                 autoscrollBox.Enabled = val;
         }
+
+        private void SetBaudRate(int baud)
+        {
+            if (baudRateSetting.InvokeRequired)
+            {
+                BaudTextSetter bts = new BaudTextSetter(SetBaudRate);
+                this.Invoke(bts, baud);
+            }
+            else
+                baudRateSetting.Text = baud.ToString();
+        }
+
+        private void SetParity(int index)
+        {
+            if (index > 4 || index < 0)
+                throw new ArgumentOutOfRangeException("Parity index is out of range.");
+
+            if (parityBox.InvokeRequired)
+            {
+                ParitySetter ps = new ParitySetter(SetParity);
+                this.Invoke(ps, index);
+            }
+            else
+                parityBox.SelectedIndex = index;
+        }
+
+        private void SetDataBits(int index)
+        {
+            if (index > 3 || index < 0)
+                throw new ArgumentOutOfRangeException("Data bits index is out of range.");
+
+            if (dataBitsList.InvokeRequired)
+            {
+                DataBitsSetter dbs = new DataBitsSetter(SetDataBits);
+                this.Invoke(dbs, index);
+            }
+            else
+                dataBitsList.SelectedIndex = index;
+        }
+
+        private void SetEOL(int index)
+        {
+            if (index > 2 || index < 0)
+                throw new ArgumentOutOfRangeException("EOL character index out of range.");
+
+            if (eolCharsBox.InvokeRequired)
+            {
+                EOLSetter es = new EOLSetter(SetEOL);
+                this.Invoke(es, index);
+            }
+            else
+                eolCharsBox.SelectedIndex = index;
+        }
+
+        private void SetStopBits(int index)
+        {
+            if (index < 0 || index > 3)
+                throw new ArgumentOutOfRangeException("Stop bits index out of range");
+
+            if (stopBitsList.InvokeRequired)
+            {
+                StopBitsSetter sbs = new StopBitsSetter(SetStopBits);
+                this.Invoke(sbs, index);
+            }
+            else
+                stopBitsList.SelectedIndex = index;
+        }
         #endregion
 
         private void updateBox(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
@@ -1009,6 +943,11 @@ namespace BetterSerialMonitor
 
         private void saveSettingsBtn_Click(object sender, EventArgs e)
         {
+            SaveSettings(settingsfile);
+        }
+
+        private void SaveSettings(string filename)
+        {
             //string settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
             string parity = parityBox.Text;
             if (parity == "Always 1")
@@ -1025,7 +964,152 @@ namespace BetterSerialMonitor
                 "    <line-end>{4}</line-end>\n" +
                 "</settings>", baudRateSetting.Text, parity.ToLower(), dataBitsList.SelectedItem, stopBitsList.SelectedItem.ToString().ToLower(), eolCharsBox.SelectedItem);
 
-            System.IO.File.WriteAllText(settingsfile, xmlSets);
+            System.IO.File.WriteAllText(filename, xmlSets);
+        }
+
+        private void LoadSettings(string filename)
+        {
+            XmlDocument settings = new XmlDocument();
+            settings.Load(filename);
+
+            XmlNode root = settings.SelectSingleNode("settings");
+            XmlElement temp;
+
+            //Baud rate
+            temp = root["baud-rate"];
+
+            int baud;
+            if (temp != null)
+            {
+                bool res = int.TryParse(temp.InnerText, out baud);
+                if (!res)
+                {
+                    MessageBox.Show("Invalid baud rate ({0}) in settings file.".format(baud), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    baud = 9600;
+                }
+            }
+            else
+                baud = 9600;
+            if (baud % 100 != 0)
+            {
+                MessageBox.Show("Invalid baud rate ({0}) in settings file.".format(baud), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SetBaudRate(9600);
+            }
+            else
+                SetBaudRate(baud);
+
+            //Parity
+
+            temp = root["parity"];
+            string parity;
+            if (temp != null)
+                parity = temp.InnerText.ToLower();
+            else
+                parity = "none";
+
+            switch (parity)
+            {
+                case "none":
+                    SetParity(0);
+                    break;
+                case "even":
+                    SetParity(1);
+                    break;
+                case "odd":
+                    SetParity(2);
+                    break;
+                case "one":
+                    SetParity(3);
+                    break;
+                case "zero":
+                    SetParity(4);
+                    break;
+                default:
+                    SetParity(0);
+                    MessageBox.Show("Invalid parity ({0}) in settings file.".format(parity), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+            }
+
+            //Stop bits
+            temp = root["stop-bits"];
+
+            float stopBits;
+            if (temp != null)
+            {
+                bool res = float.TryParse(temp.InnerText, out stopBits);
+                if (!res)
+                {
+                    MessageBox.Show("Invalid stop bits ({0}) in settings file.".format(stopBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    stopBits = 1;
+                }
+            }
+            else
+                stopBits = 0;
+            if (stopBits == 0)
+                SetStopBits(0);
+            else if (stopBits == 1)
+                SetStopBits(1);
+            else if (stopBits == 1.5)
+                SetStopBits(2);
+            else if (stopBits == 2)
+                SetStopBits(3);
+            else
+            {
+                SetStopBits(3);
+                MessageBox.Show("Invalid stop bits ({0}) in settings file.".format(stopBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            //Data bits
+            temp = root["data-bits"];
+            int dataBits;
+            if (temp != null)
+            {
+                bool res = int.TryParse(temp.InnerText, out dataBits);
+                if (!res)
+                {
+                    MessageBox.Show("Invalid data bits ({0}) in settings file.".format(dataBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    dataBits = 8;
+                }
+            }
+            else
+                dataBits = 8;
+
+            if (dataBits < 5 || dataBits > 8)
+            {
+                dataBitsList.SelectedIndex = 3;
+                MessageBox.Show("Invalid data bits ({0}) in settings file.".format(dataBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+                dataBitsList.SelectedIndex = dataBits - 5;
+
+            //Line ending
+            temp = root["line-end"];
+            string lineEnds;
+            if (temp != null)
+                lineEnds = temp.InnerText.ToUpper();
+            else
+                lineEnds = "CRLF";
+
+
+            switch (lineEnds)
+            {
+                case "CRLF":
+                    eolCharsBox.SelectedIndex = 0;
+                    break;
+                case "CR+LF":
+                    eolCharsBox.SelectedIndex = 0;
+                    break;
+                case "CR":
+                    eolCharsBox.SelectedIndex = 1;
+                    break;
+                case "LF":
+                    eolCharsBox.SelectedIndex = 2;
+                    break;
+                default:
+                    MessageBox.Show("Invalid line endings ({0}) in settings file.".format(lineEnds), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    eolCharsBox.SelectedIndex = 0;
+                    break;
+            }
         }
     }
 }
