@@ -34,6 +34,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.port = new System.IO.Ports.SerialPort(this.components);
             this.portSettings = new System.Windows.Forms.GroupBox();
+            this.saveSettingsBtn = new System.Windows.Forms.Button();
             this.dataBitsList = new System.Windows.Forms.ComboBox();
             this.eolCharsBox = new System.Windows.Forms.ComboBox();
             this.eolLabel = new System.Windows.Forms.Label();
@@ -68,7 +69,8 @@
             this.showTextButton = new System.Windows.Forms.RadioButton();
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
-            this.saveSettingsBtn = new System.Windows.Forms.Button();
+            this.rememberPortSettings = new System.Windows.Forms.CheckBox();
+            this.forgetPortBtn = new System.Windows.Forms.Button();
             this.portSettings.SuspendLayout();
             this.txControls.SuspendLayout();
             this.rxControls.SuspendLayout();
@@ -84,6 +86,8 @@
             // 
             this.portSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.portSettings.Controls.Add(this.forgetPortBtn);
+            this.portSettings.Controls.Add(this.rememberPortSettings);
             this.portSettings.Controls.Add(this.saveSettingsBtn);
             this.portSettings.Controls.Add(this.dataBitsList);
             this.portSettings.Controls.Add(this.eolCharsBox);
@@ -105,6 +109,16 @@
             this.portSettings.TabIndex = 0;
             this.portSettings.TabStop = false;
             this.portSettings.Text = "Port Settings";
+            // 
+            // saveSettingsBtn
+            // 
+            this.saveSettingsBtn.Location = new System.Drawing.Point(563, 108);
+            this.saveSettingsBtn.Name = "saveSettingsBtn";
+            this.saveSettingsBtn.Size = new System.Drawing.Size(85, 23);
+            this.saveSettingsBtn.TabIndex = 17;
+            this.saveSettingsBtn.Text = "Save settings";
+            this.saveSettingsBtn.UseVisualStyleBackColor = true;
+            this.saveSettingsBtn.Click += new System.EventHandler(this.saveSettingsBtn_Click);
             // 
             // dataBitsList
             // 
@@ -198,6 +212,7 @@
             this.portNameBox.Name = "portNameBox";
             this.portNameBox.Size = new System.Drawing.Size(102, 23);
             this.portNameBox.TabIndex = 8;
+            this.portNameBox.SelectedIndexChanged += new System.EventHandler(this.portNameBox_SelectedIndexChanged);
             this.portNameBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.openOnEnter);
             this.portNameBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.rescanPorts);
             // 
@@ -505,15 +520,25 @@
             this.rxDataBox.TabIndex = 0;
             this.rxDataBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.manualRefresh);
             // 
-            // saveSettingsBtn
+            // rememberPortSettings
             // 
-            this.saveSettingsBtn.Location = new System.Drawing.Point(563, 108);
-            this.saveSettingsBtn.Name = "saveSettingsBtn";
-            this.saveSettingsBtn.Size = new System.Drawing.Size(85, 23);
-            this.saveSettingsBtn.TabIndex = 17;
-            this.saveSettingsBtn.Text = "Save settings";
-            this.saveSettingsBtn.UseVisualStyleBackColor = true;
-            this.saveSettingsBtn.Click += new System.EventHandler(this.saveSettingsBtn_Click);
+            this.rememberPortSettings.AutoSize = true;
+            this.rememberPortSettings.Location = new System.Drawing.Point(10, 117);
+            this.rememberPortSettings.Name = "rememberPortSettings";
+            this.rememberPortSettings.Size = new System.Drawing.Size(137, 17);
+            this.rememberPortSettings.TabIndex = 18;
+            this.rememberPortSettings.Text = "Remember port settings";
+            this.rememberPortSettings.UseVisualStyleBackColor = true;
+            // 
+            // forgetPortBtn
+            // 
+            this.forgetPortBtn.Location = new System.Drawing.Point(563, 79);
+            this.forgetPortBtn.Name = "forgetPortBtn";
+            this.forgetPortBtn.Size = new System.Drawing.Size(85, 23);
+            this.forgetPortBtn.TabIndex = 19;
+            this.forgetPortBtn.Text = "Forget port";
+            this.forgetPortBtn.UseVisualStyleBackColor = true;
+            this.forgetPortBtn.Click += new System.EventHandler(this.forgetPortBtn_Click);
             // 
             // Form1
             // 
@@ -580,6 +605,8 @@
         private System.Windows.Forms.NumericUpDown psLineSel;
         private System.Windows.Forms.Label lineStayLbl;
         private System.Windows.Forms.Button saveSettingsBtn;
+        private System.Windows.Forms.CheckBox rememberPortSettings;
+        private System.Windows.Forms.Button forgetPortBtn;
     }
 }
 

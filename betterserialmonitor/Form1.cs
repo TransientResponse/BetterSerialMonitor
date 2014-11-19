@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Windows.Forms;
+using System.IO;
 
 namespace BetterSerialMonitor
 {
@@ -19,9 +20,15 @@ namespace BetterSerialMonitor
             port.Encoding = Encoding.ASCII;
 
             if (Type.GetType("Mono.Runtime") != null)
-                settingsfile = Environment.GetEnvironmentVariable("HOME") + "/.BetterSerialMonitor/settings.xml";
+            {
+                SettingsDir = Environment.GetEnvironmentVariable("HOME") + "/.BetterSerialMonitor";
+                settingsfile = SettingsDir + "/settings.xml";
+            }
             else
-                settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
+            {
+                SettingsDir = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor";
+                settingsfile = SettingsDir + "\\settings.xml";
+            }
 
             if (System.IO.File.Exists(settingsfile))
             {
@@ -65,6 +72,7 @@ namespace BetterSerialMonitor
         private delegate void StopBitsSetter(int index);
         private delegate void EOLSetter(int index);
         private delegate void DataBitsSetter(int index);
+        private delegate void RememberPortSetter(bool is_checked);
         #endregion
 
         private byte[] StoredRxText = new byte[]{}; //Keep this around
@@ -76,6 +84,8 @@ namespace BetterSerialMonitor
         private int[] newlines;
         private static string settingsfile;
         //private List<string> storedHistory = new List<string>();
+
+        private static string SettingsDir;
 
         const uint MAX_HISTORY = 256;
 
@@ -246,6 +256,15 @@ namespace BetterSerialMonitor
                 string msg = string.Format("Error opening port.\n.NET Exception: {0}", ex.Message);
                 MessageBox.Show(msg, "Error opening port", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            string portFile = Path.Combine(SettingsDir, portNameBox.Text.Replace("/", "_").Replace("COM", "COMM") + ".xml");
+                
+            if(File.Exists(portFile))
+            {
+                File.Delete(portFile);
+            }
+
+            SaveSettings(portFile);
         }
 
         private void portOpenButton_Click(object sender, EventArgs e)
@@ -636,6 +655,17 @@ namespace BetterSerialMonitor
             else
                 stopBitsList.SelectedIndex = index;
         }
+
+        private void SetRemember(bool is_checked)
+        {
+            if (rememberPortSettings.InvokeRequired)
+            {
+                RememberPortSetter rps = new RememberPortSetter(SetRemember);
+                this.Invoke(rps, is_checked);
+            }
+            else
+                rememberPortSettings.Checked = is_checked;
+        }
         #endregion
 
         private void updateBox(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
@@ -943,10 +973,10 @@ namespace BetterSerialMonitor
 
         private void saveSettingsBtn_Click(object sender, EventArgs e)
         {
-            SaveSettings(settingsfile);
+            SaveSettings(settingsfile, rememberPortSettings.Checked);
         }
 
-        private void SaveSettings(string filename)
+        private void SaveSettings(string filename, bool setRemember = false)
         {
             //string settingsfile = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\BetterSerialMonitor\settings.xml";
             string parity = parityBox.Text;
@@ -962,12 +992,13 @@ namespace BetterSerialMonitor
                 "    <data-bits>{2}</data-bits>\n" +
                 "    <stop-bits>{3}</stop-bits>\n" +
                 "    <line-end>{4}</line-end>\n" +
-                "</settings>", baudRateSetting.Text, parity.ToLower(), dataBitsList.SelectedItem, stopBitsList.SelectedItem.ToString().ToLower(), eolCharsBox.SelectedItem);
+                "    <remember-port>{5}</remember-port>\n" +
+                "</settings>", baudRateSetting.Text, parity.ToLower(), dataBitsList.SelectedItem, stopBitsList.SelectedItem.ToString().ToLower(), eolCharsBox.SelectedItem, setRemember.ToString().ToLower()); 
 
             System.IO.File.WriteAllText(filename, xmlSets);
         }
 
-        private void LoadSettings(string filename)
+        private void LoadSettings(string filename, bool ignorePorts = false)
         {
             XmlDocument settings = new XmlDocument();
             settings.Load(filename);
@@ -1076,11 +1107,11 @@ namespace BetterSerialMonitor
 
             if (dataBits < 5 || dataBits > 8)
             {
-                dataBitsList.SelectedIndex = 3;
+                SetDataBits(3);
                 MessageBox.Show("Invalid data bits ({0}) in settings file.".format(dataBits), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
-                dataBitsList.SelectedIndex = dataBits - 5;
+                SetDataBits(dataBits - 5);
 
             //Line ending
             temp = root["line-end"];
@@ -1094,22 +1125,60 @@ namespace BetterSerialMonitor
             switch (lineEnds)
             {
                 case "CRLF":
-                    eolCharsBox.SelectedIndex = 0;
+                    SetEOL(0);
                     break;
                 case "CR+LF":
-                    eolCharsBox.SelectedIndex = 0;
+                    SetEOL(0);
                     break;
                 case "CR":
-                    eolCharsBox.SelectedIndex = 1;
+                    SetEOL(1);
                     break;
                 case "LF":
-                    eolCharsBox.SelectedIndex = 2;
+                    SetEOL(2);
                     break;
                 default:
                     MessageBox.Show("Invalid line endings ({0}) in settings file.".format(lineEnds), "Invalid settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    eolCharsBox.SelectedIndex = 0;
+                    SetEOL(0);
                     break;
             }
+
+            if (!ignorePorts)
+            {
+                temp = root["remember-port"];
+                string remember;
+                if (temp != null)
+                    remember = temp.InnerText.ToLower();
+                else
+                    remember = "false";
+
+                if (remember == "true")
+                    SetRemember(true);
+                else if (remember == "false")
+                    SetRemember(false);
+                else
+                    MessageBox.Show("Invalid setting for remembering port settings: \"{0}\"".format(remember), "Invalid port remember setting", MessageBoxButtons.OK, MessageBoxIcon.Warning); 
+            }
+        }
+
+        private void portNameBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string portFile = Path.Combine(SettingsDir, portNameBox.Text.Replace("/", "_").Replace("COM", "COMM") + ".xml");
+
+            if (File.Exists(portFile))
+            {
+                if (rememberPortSettings.Checked)
+                    LoadSettings(portFile, true);
+            }
+            else
+                LoadSettings(settingsfile, true);
+        }
+
+        private void forgetPortBtn_Click(object sender, EventArgs e)
+        {
+            string portFile = portNameBox.Text.Replace("/", "_").Replace("COM", "COMM") + ".xml";
+
+            if (File.Exists(portFile))
+                File.Delete(portFile);
         }
     }
 }
