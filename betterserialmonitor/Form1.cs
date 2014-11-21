@@ -1175,7 +1175,7 @@ namespace BetterSerialMonitor
 
         private void forgetPortBtn_Click(object sender, EventArgs e)
         {
-            string portFile = portNameBox.Text.Replace("/", "_").Replace("COM", "COMM") + ".xml";
+            string portFile = Path.Combine(SettingsDir, portNameBox.Text.Replace("/", "_").Replace("COM", "COMM") + ".xml");
 
             if (File.Exists(portFile))
                 File.Delete(portFile);
