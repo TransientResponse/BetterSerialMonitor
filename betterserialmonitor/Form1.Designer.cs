@@ -34,6 +34,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.port = new System.IO.Ports.SerialPort(this.components);
             this.portSettings = new System.Windows.Forms.GroupBox();
+            this.forgetPortBtn = new System.Windows.Forms.Button();
+            this.rememberPortSettings = new System.Windows.Forms.CheckBox();
             this.saveSettingsBtn = new System.Windows.Forms.Button();
             this.dataBitsList = new System.Windows.Forms.ComboBox();
             this.eolCharsBox = new System.Windows.Forms.ComboBox();
@@ -69,8 +71,6 @@
             this.showTextButton = new System.Windows.Forms.RadioButton();
             this.rxDataBox = new System.Windows.Forms.TextBox();
             this.sendDataTT = new System.Windows.Forms.ToolTip(this.components);
-            this.rememberPortSettings = new System.Windows.Forms.CheckBox();
-            this.forgetPortBtn = new System.Windows.Forms.Button();
             this.portSettings.SuspendLayout();
             this.txControls.SuspendLayout();
             this.rxControls.SuspendLayout();
@@ -105,14 +105,38 @@
             this.portSettings.Controls.Add(this.baudRateSetting);
             this.portSettings.Location = new System.Drawing.Point(12, 12);
             this.portSettings.Name = "portSettings";
-            this.portSettings.Size = new System.Drawing.Size(655, 137);
+            this.portSettings.Size = new System.Drawing.Size(663, 137);
             this.portSettings.TabIndex = 0;
             this.portSettings.TabStop = false;
             this.portSettings.Text = "Port Settings";
             // 
+            // forgetPortBtn
+            // 
+            this.forgetPortBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.forgetPortBtn.Location = new System.Drawing.Point(571, 79);
+            this.forgetPortBtn.Name = "forgetPortBtn";
+            this.forgetPortBtn.Size = new System.Drawing.Size(85, 23);
+            this.forgetPortBtn.TabIndex = 19;
+            this.forgetPortBtn.Text = "Forget port";
+            this.forgetPortBtn.UseVisualStyleBackColor = true;
+            this.forgetPortBtn.Click += new System.EventHandler(this.forgetPortBtn_Click);
+            // 
+            // rememberPortSettings
+            // 
+            this.rememberPortSettings.AutoSize = true;
+            this.rememberPortSettings.Location = new System.Drawing.Point(10, 117);
+            this.rememberPortSettings.Name = "rememberPortSettings";
+            this.rememberPortSettings.Size = new System.Drawing.Size(137, 17);
+            this.rememberPortSettings.TabIndex = 18;
+            this.rememberPortSettings.Text = "Remember port settings";
+            this.rememberPortSettings.UseVisualStyleBackColor = true;
+            // 
             // saveSettingsBtn
             // 
-            this.saveSettingsBtn.Location = new System.Drawing.Point(563, 108);
+            this.saveSettingsBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.saveSettingsBtn.Location = new System.Drawing.Point(571, 108);
             this.saveSettingsBtn.Name = "saveSettingsBtn";
             this.saveSettingsBtn.Size = new System.Drawing.Size(85, 23);
             this.saveSettingsBtn.TabIndex = 17;
@@ -219,7 +243,7 @@
             // portCloseButton
             // 
             this.portCloseButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.portCloseButton.Location = new System.Drawing.Point(574, 36);
+            this.portCloseButton.Location = new System.Drawing.Point(582, 36);
             this.portCloseButton.Name = "portCloseButton";
             this.portCloseButton.Size = new System.Drawing.Size(75, 23);
             this.portCloseButton.TabIndex = 7;
@@ -230,7 +254,7 @@
             // portOpenButton
             // 
             this.portOpenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.portOpenButton.Location = new System.Drawing.Point(574, 12);
+            this.portOpenButton.Location = new System.Drawing.Point(582, 12);
             this.portOpenButton.Name = "portOpenButton";
             this.portOpenButton.Size = new System.Drawing.Size(75, 23);
             this.portOpenButton.TabIndex = 6;
@@ -296,7 +320,7 @@
             this.txControls.Controls.Add(this.sendNewline);
             this.txControls.Location = new System.Drawing.Point(12, 155);
             this.txControls.Name = "txControls";
-            this.txControls.Size = new System.Drawing.Size(655, 73);
+            this.txControls.Size = new System.Drawing.Size(663, 73);
             this.txControls.TabIndex = 1;
             this.txControls.TabStop = false;
             this.txControls.Text = "Data to Send";
@@ -314,7 +338,7 @@
             // clearTxBtn
             // 
             this.clearTxBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.clearTxBtn.Location = new System.Drawing.Point(493, 44);
+            this.clearTxBtn.Location = new System.Drawing.Point(501, 44);
             this.clearTxBtn.Name = "clearTxBtn";
             this.clearTxBtn.Size = new System.Drawing.Size(75, 23);
             this.clearTxBtn.TabIndex = 9;
@@ -325,7 +349,7 @@
             // historyClearButton
             // 
             this.historyClearButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.historyClearButton.Location = new System.Drawing.Point(574, 44);
+            this.historyClearButton.Location = new System.Drawing.Point(582, 44);
             this.historyClearButton.Name = "historyClearButton";
             this.historyClearButton.Size = new System.Drawing.Size(75, 23);
             this.historyClearButton.TabIndex = 7;
@@ -347,7 +371,7 @@
             // 
             this.sendButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sendButton.Enabled = false;
-            this.sendButton.Location = new System.Drawing.Point(574, 14);
+            this.sendButton.Location = new System.Drawing.Point(582, 14);
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(75, 23);
             this.sendButton.TabIndex = 4;
@@ -385,7 +409,7 @@
             // 
             this.sendNewline.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sendNewline.AutoSize = true;
-            this.sendNewline.Location = new System.Drawing.Point(478, 22);
+            this.sendNewline.Location = new System.Drawing.Point(486, 22);
             this.sendNewline.Name = "sendNewline";
             this.sendNewline.Size = new System.Drawing.Size(90, 17);
             this.sendNewline.TabIndex = 1;
@@ -408,7 +432,7 @@
             this.rxControls.Controls.Add(this.rxDataBox);
             this.rxControls.Location = new System.Drawing.Point(12, 234);
             this.rxControls.Name = "rxControls";
-            this.rxControls.Size = new System.Drawing.Size(655, 279);
+            this.rxControls.Size = new System.Drawing.Size(663, 279);
             this.rxControls.TabIndex = 2;
             this.rxControls.TabStop = false;
             this.rxControls.Text = "Data Received";
@@ -516,29 +540,9 @@
             this.rxDataBox.Name = "rxDataBox";
             this.rxDataBox.ReadOnly = true;
             this.rxDataBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.rxDataBox.Size = new System.Drawing.Size(639, 233);
+            this.rxDataBox.Size = new System.Drawing.Size(647, 233);
             this.rxDataBox.TabIndex = 0;
             this.rxDataBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.manualRefresh);
-            // 
-            // rememberPortSettings
-            // 
-            this.rememberPortSettings.AutoSize = true;
-            this.rememberPortSettings.Location = new System.Drawing.Point(10, 117);
-            this.rememberPortSettings.Name = "rememberPortSettings";
-            this.rememberPortSettings.Size = new System.Drawing.Size(137, 17);
-            this.rememberPortSettings.TabIndex = 18;
-            this.rememberPortSettings.Text = "Remember port settings";
-            this.rememberPortSettings.UseVisualStyleBackColor = true;
-            // 
-            // forgetPortBtn
-            // 
-            this.forgetPortBtn.Location = new System.Drawing.Point(563, 79);
-            this.forgetPortBtn.Name = "forgetPortBtn";
-            this.forgetPortBtn.Size = new System.Drawing.Size(85, 23);
-            this.forgetPortBtn.TabIndex = 19;
-            this.forgetPortBtn.Text = "Forget port";
-            this.forgetPortBtn.UseVisualStyleBackColor = true;
-            this.forgetPortBtn.Click += new System.EventHandler(this.forgetPortBtn_Click);
             // 
             // Form1
             // 
