@@ -51,6 +51,9 @@ namespace BetterSerialMonitor
                 stopBitsList.SelectedIndex = 1;
                 //Selected EOL
                 eolCharsBox.SelectedIndex = 0;
+
+                if (!Directory.Exists(SettingsDir))
+                    Directory.CreateDirectory(SettingsDir);
             }
             
         }
@@ -1169,7 +1172,7 @@ namespace BetterSerialMonitor
                 if (rememberPortSettings.Checked)
                     LoadSettings(portFile, true);
             }
-            else
+            else if(File.Exists(settingsfile))
                 LoadSettings(settingsfile, true);
         }
 
