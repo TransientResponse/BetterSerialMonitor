@@ -22,5 +22,21 @@ namespace BetterSerialMonitor
         {
             return String.Format(me, args);
         }
+
+        public static byte[] replaceZeroes(this byte[] me)
+        {
+            int N = me.Length;
+            byte[] temp = new byte[N];
+            
+            for(int i = 0; i < N; i++)
+            {
+                if (me[i] == 0)
+                    temp[i] = 0x3F;
+                else
+                    temp[i] = me[i];
+            }
+
+            return temp;
+        }
     }
 }

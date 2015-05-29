@@ -387,7 +387,7 @@ namespace BetterSerialMonitor
             StringBuilder buffer = new StringBuilder();
             //buffer.Append(' ');
             for (int i = 0; i < equiv.Length; i++)
-                buffer.AppendFormat("{0:X2}[{1}] ", equiv[i], equiv[i] > 127 ? '?' : (char)equiv[i]);
+                buffer.AppendFormat("{0:X2}[{1}] ", equiv[i], ((equiv[i] == 0) || (equiv[i] > 127)) ? '?' : (char)equiv[i]);
 
             buffer.Remove(buffer.Length - 1, 1);
 
@@ -395,6 +395,7 @@ namespace BetterSerialMonitor
             buffer.Replace("0A[\n]", "0A[LF]");
             buffer.Replace("09[\t]", "09[TAB]");
             buffer.Replace("20[ ]", "20[SP]");
+            buffer.Replace("00[?]", "00[NUL]");
 
             return buffer.ToString();
         }
@@ -434,7 +435,7 @@ namespace BetterSerialMonitor
 
             //Simple if in text mode.
             if (showTextButton.Checked)
-                buffer.Append(Encoding.ASCII.GetString(newData));
+                buffer.Append(Encoding.ASCII.GetString(newData.replaceZeroes()));
             //More complicated for hex mode.
             else if (showBothButton.Checked)
                 buffer.Append(convertToBoth(newData));
